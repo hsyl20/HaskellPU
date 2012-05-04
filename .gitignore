@@ -4,3 +4,7 @@ cabal-dev
 *.hi
 *.chi
 *.chs.h
+Test
+*.sh
+old
+.save_ignore

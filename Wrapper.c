@@ -1,0 +1,19 @@
+#include <starpu.h>
+
+starpu_tag_t starpu_task_tag_get(struct starpu_task *task) {
+  return task->tag_id;
+}
+
+struct starpu_task* starpu_task_create_ex(void) {
+  static starpu_tag_t tag = 1;
+  struct starpu_task *task = starpu_task_create();
+  task->tag_id = tag++;
+  return task;
+}
+
+void starpu_task_depends_on(struct starpu_task *task, starpu_tag_t tag) {
+  if (tag == 0)
+    return;
+  starpu_tag_t t = starpu_task_tag_get(task);
+  starpu_tag_declare_deps_array(t,1, &tag);
+}
