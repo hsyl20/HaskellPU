@@ -29,17 +29,18 @@ invalidate a = dataInvalidate (handle a)
 release :: Data a => a -> IO ()
 release a = dataRelease (handle a)
 
-foreign import ccall unsafe "starpu_data_interfaces.h starpu_matrix_data_register" matrixRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CUInt -> CUInt -> CUInt -> CUInt -> IO ()
+foreign import ccall unsafe "starpu_data_interfaces.h starpu_matrix_data_register" matrixRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CUInt -> CUInt -> CUInt -> CSize -> IO ()
 
-floatMatrixRegister :: CUInt -> CUInt -> CUInt -> IO Handle
-floatMatrixRegister nx ny ld = alloca $ \ptr -> alloca $ \mem -> do
-  mem <- mallocBytes (ld*ny*4)
-  matrixRegister ptr 0 (ptrToIntPtr mem) ld nx ny 4
-  peek ptr
+foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())
 
-floatMatrixRegisterInvalid :: CUInt -> CUInt -> CUInt -> IO FloatMatrix
-floatMatrixRegisterInvalid nx ny ld = do
-	handle <- floatMatrixRegister nx ny ld
+floatMatrixRegister :: Ptr () -> CUInt -> CUInt -> CUInt -> IO Handle
+floatMatrixRegister ptr nx ny ld = alloca $ \handle -> do
+  matrixRegister handle 0 (fromIntegral (ptrToWordPtr ptr)) ld nx ny 4
+  peek handle
+
+floatMatrixRegisterInvalid :: Ptr () -> CUInt -> CUInt -> CUInt -> IO FloatMatrix
+floatMatrixRegisterInvalid ptr nx ny ld = do
+	handle <- floatMatrixRegister ptr nx ny ld
 	return FloatMatrix {
 		floatMatrixHandle = handle,
 		floatMatrixEvent = dummyEvent,
@@ -51,7 +52,7 @@ floatMatrixRegisterInvalid nx ny ld = do
 
 floatMatrixComputeTask :: CUInt -> CUInt -> CUInt -> (Handle -> Task) -> [Event] -> FloatMatrix
 floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
-  cHandle <- floatMatrixRegister nx ny ld
+  cHandle <- floatMatrixRegister nullPtr nx ny ld
   task <- return $ f cHandle
   fmap (fmap (taskDependsOn task)) (return deps)
   taskSubmit task
@@ -63,6 +64,13 @@ floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
     ld = ld,
     elemSize = 4
   }
+
+instance Show FloatMatrix where
+  show a = "Matrix[Float](nx = "++ show (nx a) ++
+                       "; ny = "++ show (ny a) ++
+                       "; ld = "++ show (ld a) ++
+                       "; elemsize = "++ show (elemSize a) ++
+                       "; handle = "++ show (handle a) ++")"
 
 split :: Int -> Int -> FloatMatrix -> [[FloatMatrix]]
 split i j a = undefined

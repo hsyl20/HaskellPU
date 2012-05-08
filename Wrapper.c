@@ -17,3 +17,9 @@ void starpu_task_depends_on(struct starpu_task *task, starpu_tag_t tag) {
   starpu_tag_t t = starpu_task_tag_get(task);
   starpu_tag_declare_deps_array(t,1, &tag);
 }
+
+void * starpu_malloc_ex(size_t dim) {
+  void * res;
+  starpu_malloc(&res, dim);
+  return res;
+}

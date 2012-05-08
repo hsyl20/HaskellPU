@@ -9,10 +9,15 @@ main = do
   defaultInit
   showRuntimeInfo
   putStrLn "Register matrices..."
-  m1 <- floatMatrixRegisterInvalid 128 128 128
-  m2 <- floatMatrixRegisterInvalid 128 128 128
+  h1 <- starpuMalloc $ fromIntegral (128*128*128*4)
+  h2 <- starpuMalloc $ fromIntegral (128*128*128*4)
+  m1 <- floatMatrixRegisterInvalid h1 128 128 128
+  m2 <- floatMatrixRegisterInvalid h2 128 128 128
+  putStrLn (show m1)
+  putStrLn (show m2)
   putStrLn "Performing SGEMM..."
   r <- return $! sgemm m1 m2
+  putStrLn (show r)
   putStrLn "Wait for all tasks"
   taskWaitForAll
   putStrLn "Unregister matrices..."

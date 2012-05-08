@@ -47,23 +47,11 @@ static void sgemm_cuda(void *descr[], void *_args) {
 }
 
 static void sgemm_cpu(void *descr[], void *_args) {
-  float *left 	= (float *)STARPU_MATRIX_GET_PTR(descr[0]);
-	float *right 	= (float *)STARPU_MATRIX_GET_PTR(descr[1]);
-	float *center 	= (float *)STARPU_MATRIX_GET_PTR(descr[2]);
-
-	unsigned dx = STARPU_MATRIX_GET_NY(descr[2]);
-	unsigned dy = STARPU_MATRIX_GET_NX(descr[2]);
-	unsigned dz = STARPU_MATRIX_GET_NY(descr[0]);
-
-	unsigned ld21 = STARPU_MATRIX_GET_LD(descr[0]);
-	unsigned ld12 = STARPU_MATRIX_GET_LD(descr[1]);
-	unsigned ld22 = STARPU_MATRIX_GET_LD(descr[2]);
-
 }
 
 static struct starpu_codelet sgemm_codelet =
 {
-  .modes = { STARPU_R, STARPU_R, STARPU_RW },
+  .modes = { STARPU_R, STARPU_R, STARPU_W },
   .where = STARPU_CUDA,
   .cpu_funcs = {sgemm_cpu, NULL},
   .cuda_funcs = {sgemm_cuda, NULL},
