@@ -15,7 +15,7 @@ OBJS= $(CFILES:.c=.o)
 	gcc -Wall -o $@ `pkg-config libstarpu --cflags-only-I` -I$(CUBLASDIR) -c $<
 
 all: $(HSC) $(EXEC) $(OBJS)
-	@ghc `pkg-config libstarpu --libs --cflags` -L$(CUBLASLIB) $(EXEC) $(OBJS)
+	@ghc -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -L$(CUBLASLIB) $(EXEC) $(OBJS)
 	
 
 clean:

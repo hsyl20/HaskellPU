@@ -43,17 +43,3 @@ type Handle = Ptr ()
 class Data a where
   handle :: a -> Handle
   event :: a -> Event
-
-
-data FloatMatrix = FloatMatrix {
-	floatMatrixHandle :: Handle,
-  floatMatrixEvent :: Event,
-	nx :: CUInt,
-	ny :: CUInt,
-	ld :: CUInt,
-	elemSize :: CUInt
-}
-
-instance Data FloatMatrix where
-  handle = floatMatrixHandle
-  event = floatMatrixEvent

@@ -1,9 +1,11 @@
 module DataTypes where
 
+import HighDataTypes
 import Structures
 import Event
 import Task
 
+import Data.Word
 import Control.Monad
 import Foreign.Ptr
 import Foreign.C
@@ -33,6 +35,19 @@ foreign import ccall unsafe "starpu_data_interfaces.h starpu_matrix_data_registe
 
 foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())
 
+data FloatMatrix = FloatMatrix {
+	floatMatrixHandle :: Handle,
+  floatMatrixEvent :: Event,
+	nx :: Word,
+	ny :: Word,
+	ld :: Word,
+	elemSize :: Word
+}
+
+instance Data FloatMatrix where
+  handle = floatMatrixHandle
+  event = floatMatrixEvent
+
 floatMatrixRegister :: Ptr () -> CUInt -> CUInt -> CUInt -> IO Handle
 floatMatrixRegister ptr nx ny ld = alloca $ \handle -> do
   matrixRegister handle 0 (fromIntegral (ptrToWordPtr ptr)) ld nx ny 4
@@ -44,9 +59,9 @@ floatMatrixRegisterInvalid ptr nx ny ld = do
 	return FloatMatrix {
 		floatMatrixHandle = handle,
 		floatMatrixEvent = dummyEvent,
-		nx = nx,
-		ny = ny,
-		ld = ld,
+		nx = fromIntegral nx,
+		ny = fromIntegral ny,
+		ld = fromIntegral ld,
 		elemSize = 4
 	}
 
@@ -59,9 +74,9 @@ floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
   return FloatMatrix {
     floatMatrixHandle = cHandle,
     floatMatrixEvent = taskEvent task,
-    nx = nx,
-    ny = ny,
-    ld = ld,
+    nx = fromIntegral nx,
+    ny = fromIntegral ny,
+    ld = fromIntegral ld,
     elemSize = 4
   }
 
@@ -72,40 +87,9 @@ instance Show FloatMatrix where
                        "; elemsize = "++ show (elemSize a) ++
                        "; handle = "++ show (handle a) ++")"
 
-split :: Int -> Int -> FloatMatrix -> [[FloatMatrix]]
+split :: Int -> Int -> FloatMatrix -> HighMatrix FloatMatrix
 split i j a = undefined
 
-unsplit :: Int -> Int -> [[FloatMatrix]] -> FloatMatrix
+unsplit :: Int -> Int -> HighMatrix FloatMatrix -> FloatMatrix
 unsplit i j a = undefined
 
-crossWith :: (a->b->c) -> [a] -> [b] -> [[c]]
-crossWith f a b = map g a
-	where
-		g x = map (f x) b
-
-cross :: [a] -> [b] -> [[(a,b)]]
-cross a b = crossWith (,) a b
-
-rows :: [[a]] -> [[a]]
-rows = id
-
-columns :: [[a]] -> [[a]]
-columns = transpose
-
-row :: Int -> [[a]] -> [a]
-row i m = m !! i
-
-column :: Int -> [[a]] -> [a]
-column i m = (columns m) !! i
-
-dropRows :: Int -> [[a]] -> [[a]]
-dropRows i m = drop i m
-
-dropColumns :: Int -> [[a]] -> [[a]]
-dropColumns i m = transpose $ drop i $ transpose m
-
-fromRows :: [[a]] -> [[a]]
-fromRows = id
-
-fromColumns :: [[a]] -> [[a]]
-fromColumns = transpose
