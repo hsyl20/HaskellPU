@@ -6,11 +6,13 @@ import Event
 import Task
 
 import Data.Word
+import Data.Ix
 import Control.Monad
 import Foreign.Ptr
 import Foreign.C
 import Foreign.Storable
 import Foreign.Marshal.Alloc
+import Foreign.Marshal.Array
 import System.IO.Unsafe
 import Data.List
 
@@ -48,12 +50,23 @@ instance Data FloatMatrix where
   handle = floatMatrixHandle
   event = floatMatrixEvent
 
-floatMatrixRegister :: Ptr () -> CUInt -> CUInt -> CUInt -> IO Handle
+floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr nx ny ld = alloca $ \handle -> do
-  matrixRegister handle 0 (fromIntegral (ptrToWordPtr ptr)) ld nx ny 4
+  matrixRegister handle 0 (fromIntegral (ptrToWordPtr ptr)) (fromIntegral ld) (fromIntegral nx) (fromIntegral ny) 4
   peek handle
 
-floatMatrixRegisterInvalid :: Ptr () -> CUInt -> CUInt -> CUInt -> IO FloatMatrix
+floatMatrixInit :: (Word -> Word -> Float) -> Word -> Word -> FloatMatrix
+floatMatrixInit f width height = unsafePerformIO $ do
+  ptr <- starpuMalloc $ fromIntegral (width*height*4) 
+  pokeArray (castPtr ptr) cells
+  handle <- floatMatrixRegister ptr width height width
+  return $ FloatMatrix handle dummyEvent width height width 4
+  where
+    rows = range (0,height-1)
+    cols = range (0,width-1)
+    cells = concat $ map (\row -> map (\col -> f row col) cols) rows
+
+floatMatrixRegisterInvalid :: Ptr () -> Word -> Word -> Word -> IO FloatMatrix
 floatMatrixRegisterInvalid ptr nx ny ld = do
 	handle <- floatMatrixRegister ptr nx ny ld
 	return FloatMatrix {
@@ -65,7 +78,7 @@ floatMatrixRegisterInvalid ptr nx ny ld = do
 		elemSize = 4
 	}
 
-floatMatrixComputeTask :: CUInt -> CUInt -> CUInt -> (Handle -> Task) -> [Event] -> FloatMatrix
+floatMatrixComputeTask :: Word -> Word -> Word -> (Handle -> Task) -> [Event] -> FloatMatrix
 floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
   cHandle <- floatMatrixRegister nullPtr nx ny ld
   task <- return $ f cHandle
