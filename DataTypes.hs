@@ -35,6 +35,8 @@ release a = dataRelease (handle a)
 
 foreign import ccall unsafe "starpu_data_interfaces.h starpu_matrix_data_register" matrixRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CUInt -> CUInt -> CUInt -> CSize -> IO ()
 
+foreign import ccall unsafe "starpu_data_interfaces.h starpu_variable_data_register" variableRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CSize -> IO ()
+
 foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())
 
 data FloatMatrix = FloatMatrix {
@@ -50,55 +52,45 @@ instance Data FloatMatrix where
   handle = floatMatrixHandle
   event = floatMatrixEvent
 
+-- |Register a StarPU matrix a Float stored at the given address
 floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
-floatMatrixRegister ptr nx ny ld = alloca $ \handle -> do
-  matrixRegister handle 0 (fromIntegral (ptrToWordPtr ptr)) (fromIntegral ld) (fromIntegral nx) (fromIntegral ny) 4
+floatMatrixRegister ptr width height ld = alloca $ \handle -> do
+  matrixRegister handle 0 nptr nld nx ny 4
   peek handle
+  where
+    nptr = fromIntegral $ ptrToWordPtr ptr
+    nld = fromIntegral ld
+    nx = fromIntegral width
+    ny = fromIntegral height
 
+-- |Initialize a new matrix of Float using the given function
 floatMatrixInit :: (Word -> Word -> Float) -> Word -> Word -> FloatMatrix
 floatMatrixInit f width height = unsafePerformIO $ do
-  ptr <- starpuMalloc $ fromIntegral (width*height*4) 
+  ptr <- starpuMalloc rawSize
   pokeArray (castPtr ptr) cells
   handle <- floatMatrixRegister ptr width height width
   return $ FloatMatrix handle dummyEvent width height width 4
   where
+    rawSize = fromIntegral (width*height*4)
     rows = range (0,height-1)
     cols = range (0,width-1)
     cells = concat $ map (\row -> map (\col -> f row col) cols) rows
 
-floatMatrixRegisterInvalid :: Ptr () -> Word -> Word -> Word -> IO FloatMatrix
-floatMatrixRegisterInvalid ptr nx ny ld = do
-	handle <- floatMatrixRegister ptr nx ny ld
-	return FloatMatrix {
-		floatMatrixHandle = handle,
-		floatMatrixEvent = dummyEvent,
-		nx = fromIntegral nx,
-		ny = fromIntegral ny,
-		ld = fromIntegral ld,
-		elemSize = 4
-	}
-
 floatMatrixComputeTask :: Word -> Word -> Word -> (Handle -> Task) -> [Event] -> FloatMatrix
 floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
-  cHandle <- floatMatrixRegister nullPtr nx ny ld
-  task <- return $ f cHandle
+  handle <- floatMatrixRegister nullPtr nx ny ld
+  task <- return $ f handle
   fmap (fmap (taskDependsOn task)) (return deps)
   taskSubmit task
-  return FloatMatrix {
-    floatMatrixHandle = cHandle,
-    floatMatrixEvent = taskEvent task,
-    nx = fromIntegral nx,
-    ny = fromIntegral ny,
-    ld = fromIntegral ld,
-    elemSize = 4
-  }
+  return $ FloatMatrix handle (taskEvent task) nx ny ld 4
 
 instance Show FloatMatrix where
-  show a = "Matrix[Float](nx = "++ show (nx a) ++
-                       "; ny = "++ show (ny a) ++
-                       "; ld = "++ show (ld a) ++
-                       "; elemsize = "++ show (elemSize a) ++
-                       "; handle = "++ show (handle a) ++")"
+  show (FloatMatrix handle event nx ny ld elemSize)  =
+    "Matrix[Float](nx = "++ show nx ++
+    "; ny = "++ show ny ++
+    "; ld = "++ show ld ++
+    "; elemsize = "++ show elemSize ++
+    "; handle = "++ show handle ++")"
 
 split :: Int -> Int -> FloatMatrix -> HighMatrix FloatMatrix
 split i j a = undefined

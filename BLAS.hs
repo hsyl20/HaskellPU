@@ -4,8 +4,6 @@ import DataTypes
 import Task
 import Structures
 
-import System.IO.Unsafe
-
 foreign import ccall unsafe "sgemm_task_create" sgemmTaskCreate :: Handle -> Handle -> Handle -> Task
 
 sgemm :: FloatMatrix -> FloatMatrix -> FloatMatrix
