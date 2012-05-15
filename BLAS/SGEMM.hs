@@ -6,7 +6,7 @@ import StarPU.Structures
 
 foreign import ccall unsafe "sgemm_task_create" sgemmTaskCreate :: Handle -> Handle -> Handle -> Task
 
-sgemm :: FloatMatrix -> FloatMatrix -> FloatMatrix
+sgemm :: Matrix Float -> Matrix Float -> Matrix Float
 sgemm a b = floatMatrixComputeTask h w w f deps
   where
     h = nx b
