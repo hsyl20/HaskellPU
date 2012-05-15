@@ -1,4 +1,4 @@
-module Event where
+module StarPU.Event where
 
 import Foreign.C
 

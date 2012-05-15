@@ -1,6 +1,6 @@
-module Task where
+module StarPU.Task where
 
-import Event
+import StarPU.Event
 
 import Foreign.Ptr
 import Foreign.C

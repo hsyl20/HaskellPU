@@ -1,8 +1,8 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
  
-module Structures where
+module StarPU.Structures where
  
-import Event
+import StarPU.Event
 
 import Foreign
 import Foreign.Ptr

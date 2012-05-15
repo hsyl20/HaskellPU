@@ -1,9 +1,9 @@
 module DataTypes where
 
 import HighDataTypes
-import Structures
-import Event
-import Task
+import StarPU.Structures
+import StarPU.Event
+import StarPU.Task
 
 import Data.Word
 import Data.Ix

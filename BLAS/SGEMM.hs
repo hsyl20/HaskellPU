@@ -1,8 +1,8 @@
-module BLAS where
+module BLAS.SGEMM where
 
 import DataTypes
-import Task
-import Structures
+import StarPU.Task
+import StarPU.Structures
 
 foreign import ccall unsafe "sgemm_task_create" sgemmTaskCreate :: Handle -> Handle -> Handle -> Task
 

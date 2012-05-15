@@ -1,7 +1,8 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 
-module StarPU where
-import Structures
+module StarPU.Platform where
+
+import StarPU.Structures
 import DataTypes
 
 import Foreign.Ptr
@@ -9,6 +10,7 @@ import Foreign.C
  
 foreign import ccall unsafe "starpu.h starpu_init" initialize :: Ptr StarPUConf -> IO CInt
 foreign import ccall unsafe "starpu.h starpu_shutdown" shutdown :: IO ()
+
 defaultInit = initialize nullPtr
 
 foreign import ccall unsafe "starpu.h starpu_worker_get_count" workerCount :: CUInt
