@@ -37,6 +37,9 @@ invalidate a = dataInvalidate (handle a)
 release :: Data a => a -> IO ()
 release a = dataRelease (handle a)
 
+acquire :: Data a => AccessMode -> a -> IO Int
+acquire mode a = dataAcquire (handle a) mode
+
 foreign import ccall unsafe "starpu_data_interfaces.h starpu_matrix_data_register" matrixRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CUInt -> CUInt -> CUInt -> CSize -> IO ()
 
 foreign import ccall unsafe "starpu_data_interfaces.h starpu_variable_data_register" variableRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CSize -> IO ()
@@ -97,12 +100,19 @@ instance Show FloatMatrix where
     "; handle = "++ show handle ++")"
 
 
-readFloatMatrix :: FloatMatrix -> IO [Float]
+readFloatMatrix :: FloatMatrix -> IO [[Float]]
 readFloatMatrix m = do
-  dataAcquire (handle m) readOnly
+  acquire readOnly m
   ptr <- matrixLocalPtr (handle m)
-  values <- peekArray (fromIntegral (nx m)) (wordPtrToPtr (fromIntegral ptr))
+  uptr <- return $ wordPtrToPtr $ fromIntegral ptr
+  values <- mapM (\row -> (peekArray rowSize (plusPtr uptr (rowOffset row)))) rows
+  release m
   return values
+  where
+    rows = range (0, ny m)
+    rowOffset row = fromIntegral $ row * (ld m) * (elemSize m)
+    rowSize = fromIntegral $ (nx m)
+
 
 
 split :: Int -> Int -> FloatMatrix -> HighMatrix FloatMatrix
