@@ -3,7 +3,7 @@ module QR where
 import qualified Prelude
 import Prelude (($), (-), (==))
 import HighDataTypes
-import DataTypes
+import StarPU.DataTypes
 import Data.Functor
 
 qr_lu f11 f1k fk1 fkk i a = unsplit i i bs

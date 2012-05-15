@@ -1,9 +1,10 @@
-module DataTypes where
+module StarPU.DataTypes where
 
 import HighDataTypes
 import StarPU.Structures
 import StarPU.Event
 import StarPU.Task
+import StarPU.AccessMode
 
 import Data.Word
 import Data.Ix
@@ -20,6 +21,9 @@ foreign import ccall "starpu_data.h starpu_data_unregister" dataUnregister :: Ha
 foreign import ccall "starpu_data.h starpu_data_unregister_no_coherency" dataUnregisterInvalid :: Handle -> IO ()
 foreign import ccall "starpu_data.h starpu_data_invalidate" dataInvalidate :: Handle -> IO ()
 foreign import ccall "starpu_data.h starpu_data_release" dataRelease :: Handle -> IO ()
+
+foreign import ccall "starpu_data_acquire" dataAcquire :: Handle -> AccessMode -> IO Int
+foreign import ccall "starpu_matrix_get_local_ptr" matrixLocalPtr :: Handle -> IO CUIntPtr
 
 unregister :: Data a => a -> IO ()
 unregister a = dataUnregister (handle a)
@@ -91,6 +95,15 @@ instance Show FloatMatrix where
     "; ld = "++ show ld ++
     "; elemsize = "++ show elemSize ++
     "; handle = "++ show handle ++")"
+
+
+readFloatMatrix :: FloatMatrix -> IO [Float]
+readFloatMatrix m = do
+  dataAcquire (handle m) readOnly
+  ptr <- matrixLocalPtr (handle m)
+  values <- peekArray (fromIntegral (nx m)) (wordPtrToPtr (fromIntegral ptr))
+  return values
+
 
 split :: Int -> Int -> FloatMatrix -> HighMatrix FloatMatrix
 split i j a = undefined

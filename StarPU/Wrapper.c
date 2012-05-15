@@ -8,6 +8,8 @@ struct starpu_task* starpu_task_create_ex(void) {
   static starpu_tag_t tag = 1;
   struct starpu_task *task = starpu_task_create();
   task->tag_id = tag++;
+  task->detach = 0;
+  task->destroy = 0;
   return task;
 }
 
