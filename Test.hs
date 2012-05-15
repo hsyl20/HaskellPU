@@ -2,8 +2,7 @@ import StarPU.Platform
 import StarPU.DataTypes
 import StarPU.Task
 
-import HighDataTypes
-
+import StarPU.Data.Matrix
 import BLAS.SGEMM
 import QR
 
@@ -24,7 +23,7 @@ main = do
   putStrLn (show m2)
   putStrLn (show m3)
   putStrLn (show m4)
-  putStrLn "Performing SGEMM..."
+{-  putStrLn "Performing SGEMM..."
   r <- return $ sgemm (sgemm m1 m2) (sgemm m3 m4)
   putStrLn "Wait for all tasks"
   taskWaitForAll
@@ -36,6 +35,8 @@ main = do
   unregister m2
   unregister m3
   unregister m4
-  unregister r
+  unregister r-}
+  result <- readFloatMatrix m2
+  putStrLn (show result)
   putStrLn "Shutting down..."
   shutdown

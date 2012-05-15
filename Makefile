@@ -19,5 +19,5 @@ all: $(HSC) $(EXEC) $(OBJS)
 	
 
 clean:
-	@rm -f *.hi BLAS/*.hi StarPU/*.hi Test $(HSC) $(OBJS)
+	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS)
 

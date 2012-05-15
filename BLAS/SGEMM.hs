@@ -1,6 +1,6 @@
 module BLAS.SGEMM where
 
-import StarPU.DataTypes
+import StarPU.Data.Matrix
 import StarPU.Task
 import StarPU.Structures
 
