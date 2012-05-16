@@ -8,3 +8,4 @@ Test
 *.sh
 old
 .save_ignore
+*.swp
