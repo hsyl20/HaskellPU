@@ -51,9 +51,18 @@ floatMatrixInit f width height = unsafePerformIO $ do
     cols = range (0,width-1)
     cells = concat $ map (\row -> map (\col -> f row col) cols) rows
 
+floatMatrixRegisterInvalid :: Word -> Word -> IO Handle
+floatMatrixRegisterInvalid width height = do
+  ptr <- starpuMalloc rawSize
+  floatMatrixRegister ptr width height width
+  where
+    rawSize = fromIntegral (width*height*4)
+
+
 floatMatrixComputeTask :: Word -> Word -> Word -> (Handle -> Task) -> [Event] -> Matrix Float
 floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
-  handle <- floatMatrixRegister nullPtr nx ny ld
+  --FIXME: StarPU is not able to allocate a matrix with a NULL ptr
+  handle <- floatMatrixRegisterInvalid nx ny
   task <- return $ f handle
   fmap (fmap (taskDependsOn task)) (return deps)
   taskSubmit task
@@ -77,6 +86,12 @@ readFloatMatrix m = do
   release m
   return values
   where
-    rows = range (0, ny m)
+    rows = range (0, (ny m) - 1)
     rowOffset row = fromIntegral $ row * (ld m) * (elemSize m)
     rowSize = fromIntegral $ (nx m)
+
+printFloatMatrix :: Matrix Float -> IO String
+printFloatMatrix m = do
+  ms <- readFloatMatrix m
+  return $ unlines $ map show ms
+
