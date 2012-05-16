@@ -42,7 +42,7 @@ static void sgemm_cuda(void *descr[], void *_args) {
 	unsigned ld12 = STARPU_MATRIX_GET_LD(descr[1]);
 	unsigned ld22 = STARPU_MATRIX_GET_LD(descr[2]);
 
-	cublasSgemm('n', 't', dy, dx, dz, -1.0f, left, ld21, right, ld12, 1.0f, center, ld22);
+	cublasSgemm('n', 't', dy, dx, dz, 1.0f, left, ld21, right, ld12, 0.0f, center, ld22);
 	cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 
