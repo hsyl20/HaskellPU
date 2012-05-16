@@ -22,13 +22,8 @@ main = do
   showRuntimeInfo
 
   putStrLn "Computing..."
-  r0 <- return $ sgemm m1 m2
-  printFloatMatrix r0 >>= putStrLn
 
-  r1 <- return $ sgemm m3 m4
-  printFloatMatrix r1 >>= putStrLn
-
-  r <- return $ sgemm r0 r1
+  r <- return $! sgemm (sgemm m1 m2) (sgemm m3 m4)
 
   putStrLn "Wait for all tasks"
   taskWaitForAll

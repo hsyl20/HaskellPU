@@ -64,7 +64,7 @@ floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
   --FIXME: StarPU is not able to allocate a matrix with a NULL ptr
   handle <- floatMatrixRegisterInvalid nx ny
   task <- return $ f handle
-  fmap (fmap (taskDependsOn task)) (return deps)
+  mapM (taskDependsOn task) deps
   taskSubmit task
   return $ Matrix handle (taskEvent task) nx ny ld 4
 

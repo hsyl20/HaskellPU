@@ -7,6 +7,7 @@ starpu_tag_t starpu_task_tag_get(struct starpu_task *task) {
 struct starpu_task* starpu_task_create_ex(void) {
   static starpu_tag_t tag = 1;
   struct starpu_task *task = starpu_task_create();
+  task->use_tag = 1;
   task->tag_id = tag++;
   task->detach = 0;
   task->destroy = 0;
@@ -17,7 +18,8 @@ void starpu_task_depends_on(struct starpu_task *task, starpu_tag_t tag) {
   if (tag == 0)
     return;
   starpu_tag_t t = starpu_task_tag_get(task);
-  starpu_tag_declare_deps_array(t,1, &tag);
+  starpu_tag_t tags[] = {tag};
+  starpu_tag_declare_deps_array(t,1, tags);
 }
 
 void * starpu_malloc_ex(size_t dim) {
