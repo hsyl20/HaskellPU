@@ -3,6 +3,7 @@
 module StarPU.Platform where
 
 import StarPU.Structures
+import StarPU.Task
 import Foreign.Ptr
 import Foreign.C
 
@@ -53,3 +54,9 @@ runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
     dataflow = "Dataflow mode is " ++ (enabled dataflowModeEnabled)
     enabled x = if x then "enabled" else "disabled"
 
+{- |Compute the given parameter and wait for each task to complete -}
+compute :: a -> IO a
+compute a = do
+  r <- return $! a
+  taskWaitForAll
+  return r

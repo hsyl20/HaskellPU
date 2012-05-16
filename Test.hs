@@ -23,10 +23,7 @@ main = do
 
   putStrLn "Computing..."
 
-  r <- return $! sgemm (sgemm m1 m2) (sgemm m3 m4)
-
-  putStrLn "Wait for all tasks"
-  taskWaitForAll
+  r <- compute $ sgemm (sgemm m1 m2) (sgemm m3 m4)
 
   printFloatMatrix r >>= putStrLn
 
