@@ -1,3 +1,5 @@
+import Control.Monad
+
 import StarPU.Platform
 import StarPU.DataTypes
 import StarPU.Task
@@ -18,25 +20,27 @@ main = do
   defaultInit
   cublasInit
   showRuntimeInfo
-  putStrLn "Register matrices..."
-  putStrLn (show m1)
-  putStrLn (show m2)
-  putStrLn (show m3)
-  putStrLn (show m4)
-{-  putStrLn "Performing SGEMM..."
-  r <- return $ sgemm (sgemm m1 m2) (sgemm m3 m4)
+
+  putStrLn "Computing..."
+  r0 <- return $ sgemm m1 m2
+  printFloatMatrix r0 >>= putStrLn
+
+  r1 <- return $ sgemm m3 m4
+  printFloatMatrix r1 >>= putStrLn
+
+  r <- return $ sgemm r0 r1
+
   putStrLn "Wait for all tasks"
   taskWaitForAll
-  putStrLn (show r)
-  result <- readFloatMatrix r
-  putStrLn (show result)
+
+  printFloatMatrix r >>= putStrLn
+
   putStrLn "Unregister matrices..."
-  unregister m1
-  unregister m2
-  unregister m3
-  unregister m4
-  unregister r-}
-  result <- readFloatMatrix m2
-  putStrLn (show result)
+  unregisterInvalid m1
+  unregisterInvalid m2
+  unregisterInvalid m3
+  unregisterInvalid m4
+  unregisterInvalid r
+
   putStrLn "Shutting down..."
   shutdown
