@@ -26,7 +26,7 @@ static struct starpu_perfmodel sgemm_model =
 		[STARPU_CUDA_DEFAULT][0] = { .cost_function = sgemm_cuda_cost }
 	},
 	.type = STARPU_HISTORY_BASED,
-	.symbol = "sgemm_model"
+	.symbol = "SGEMM"
 };
 
 static void sgemm_cuda(void *descr[], void *_args) {
