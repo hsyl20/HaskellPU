@@ -95,3 +95,10 @@ printFloatMatrix m = do
   ms <- readFloatMatrix m
   return $ unlines $ map show ms
 
+foreign import ccall unsafe "sub_matrix_task_create" subMatrixTaskCreate :: Word -> Word -> Handle -> Handle -> Task
+
+subMatrix :: Word -> Word -> Word -> Word -> Matrix Float -> Matrix Float
+subMatrix x y w h m = floatMatrixComputeTask w h w f deps
+  where
+    deps = [event m]
+    f h = subMatrixTaskCreate x y (handle m) h

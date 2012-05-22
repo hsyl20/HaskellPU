@@ -5,7 +5,7 @@ EXEC=Test.hs
 HSCFILES= $(wildcard *.hsc StarPU/*.hsc)
 HSC= $(HSCFILES:.hsc=.hs)
 
-CFILES= $(wildcard *.c StarPU/*.c BLAS/*.c)
+CFILES= $(wildcard *.c StarPU/*.c BLAS/*.c StarPU/Data/*.c)
 OBJS= $(CFILES:.c=.o)
 
 %.hs: %.hsc
