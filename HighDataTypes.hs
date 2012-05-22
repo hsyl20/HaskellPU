@@ -1,9 +1,12 @@
 module HighDataTypes where
 
+import Prelude hiding (foldr)
 import qualified Data.List
+import Data.Traversable
+import Data.Foldable
 
-data HighVector a = HighVector [a]
-data HighMatrix a = HighMatrix [[a]]
+data HighVector a = HighVector [a] deriving Show
+data HighMatrix a = HighMatrix [[a]] deriving Show
 
 -- |Transpose a matrix
 transpose :: HighMatrix a -> HighMatrix a

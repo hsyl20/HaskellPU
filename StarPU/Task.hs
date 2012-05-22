@@ -14,5 +14,5 @@ foreign import ccall "starpu_task_wait" taskWait :: Task -> IO ()
 foreign import ccall "starpu_task_wait_for_all" taskWaitForAll :: IO ()
 
 
-foreign import ccall unsafe "starpu_task_tag_get" taskEvent :: Task -> Event
+foreign import ccall unsafe "starpu_task_event" taskEvent :: Task -> Event
 foreign import ccall unsafe "starpu_task_depends_on" taskDependsOn :: Task -> Event -> IO ()

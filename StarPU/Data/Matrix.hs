@@ -14,13 +14,15 @@ import Foreign.Ptr
 import Foreign.Storable
 import System.IO.Unsafe
 
+import HighDataTypes
+
 data Matrix a = Matrix {
-	matrixHandle :: Handle,
+  matrixHandle :: Handle,
   matrixEvent :: Event,
-	nx :: Word,
-	ny :: Word,
-	ld :: Word,
-	elemSize :: Word
+  nx :: Word,
+  ny :: Word,
+  ld :: Word,
+  elemSize :: Word
 }
 
 instance Data (Matrix a) where
@@ -79,6 +81,7 @@ instance Show (Matrix a) where
 
 readFloatMatrix :: Matrix Float -> IO [[Float]]
 readFloatMatrix m = do
+  eventWait (event m)
   acquire readOnly m
   ptr <- matrixLocalPtr (handle m)
   uptr <- return $ wordPtrToPtr $ fromIntegral ptr
@@ -102,3 +105,19 @@ subMatrix x y w h m = floatMatrixComputeTask w h w f deps
   where
     deps = [event m]
     f h = subMatrixTaskCreate x y (handle m) h
+
+split :: Word -> Word -> Matrix Float -> HighMatrix (Matrix Float)
+split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
+  where
+    rows = range (0,y-1)
+    cols = range (0,x-1)
+    width = nx m
+    height = ny m
+    wp = div width x
+    wr = width - (x*wp)
+    hp = div height y
+    hr = height - (y*hp)
+    f c r = subMatrix (c*wp) (r*hp) myW myH m
+      where
+	myW = if c /= x-1 then wp else (wp+wr)
+	myH = if r /= y-1 then hp else (hp+hr)

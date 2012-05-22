@@ -2,7 +2,7 @@
 #include <starpu_cuda.h>
 #include <cublas.h>
 
-#include "../StarPU/Wrapper.h"
+#include "../StarPU/Task.h"
 
 static double sgemm_cpu_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl)
 {

@@ -2,14 +2,12 @@ module QR where
 
 import qualified Prelude
 import Prelude (($), (-), (==), Int, Float, undefined)
+import Data.Word
 import HighDataTypes
 import StarPU.Data.Matrix
 import Data.Functor
 
-split :: Int -> Int -> Matrix Float -> HighMatrix (Matrix Float)
-split i j a = undefined
-
-unsplit :: Int -> Int -> HighMatrix (Matrix Float) -> Matrix Float
+unsplit :: Word -> Word -> HighMatrix (Matrix Float) -> Matrix Float
 unsplit i j a = undefined
 
 qr_lu f11 f1k fk1 fkk i a = unsplit i i bs

@@ -2,7 +2,7 @@
 #include <starpu_cuda.h>
 #include <cublas.h>
 
-#include "../Wrapper.h"
+#include "../Task.h"
 
 static struct starpu_perfmodel sub_matrix_model =
 {
