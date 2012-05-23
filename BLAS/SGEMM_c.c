@@ -28,19 +28,19 @@ static struct starpu_perfmodel sgemm_model =
 };
 
 static void sgemm_cuda(void *descr[], void *_args) {
-  float *left = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
-  float *right = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
-  float *center = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
+  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+  float *c = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
 
-  unsigned dx = STARPU_MATRIX_GET_NY(descr[2]);
-  unsigned dy = STARPU_MATRIX_GET_NX(descr[2]);
-  unsigned dz = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NX(descr[2]);
+  unsigned h = STARPU_MATRIX_GET_NY(descr[2]);
+  unsigned k = STARPU_MATRIX_GET_NX(descr[0]);
 
-  unsigned ld21 = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned ld12 = STARPU_MATRIX_GET_LD(descr[1]);
-  unsigned ld22 = STARPU_MATRIX_GET_LD(descr[2]);
+  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
+  unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
 
-  cublasSgemm('n', 't', dy, dx, dz, 1.0f, left, ld21, right, ld12, 0.0f, center, ld22);
+  cublasSgemm('n', 'n', w, h, k, 1.0f, b, ldb, a, lda, 0.0f, c, ldc);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 

@@ -12,12 +12,15 @@ import BLAS
 import QR
 import HighDataTypes
 
-n = 128
+n = 16
 
 m1 = floatMatrixInit (\x y -> 1.0) n n
 m2 = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
 m3 = floatMatrixInit (\x y -> 2.0) n n
 m4 = floatMatrixInit (\x y -> 3.0) n n
+
+m5 = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) 10 10
+m6 = floatMatrixInit (\x y -> fromIntegral (x + y)) 8 10
 
 ms = map createMatrix $ range (1, 96)
   where
@@ -32,18 +35,33 @@ main = do
 
   putStrLn "Computing..."
 
---  printFloatMatrix $ sgemm (sgemm m1 m2) (sgemm m3 m4)
---  printFloatMatrix $ subMatrix 1 5 5 5 m2
---  compute $ reduce sgemm ms
+  printFloatMatrix $ sgemm m2 m3
 
---  printHighMatrix $ split 3 2 m2
-  printFloatMatrix $ matadd m4 m3
+  putStrLn "A"
+  printFloatMatrix m5
+
+  putStrLn "B"
+  printFloatMatrix m6
+
+  putStrLn "A * B"
+  printFloatMatrix $ sgemm m5 m6
+  
+  putStrLn "A (using blocks)"
+  printHighMatrix (split 1 2 m5)
+
+  putStrLn "B (using blocks)"
+  printHighMatrix (split 2 1 m6)
+
+  putStrLn "A * B (using blocks)"
+  printHighMatrix $ highSGEMM (split 1 2 m5) (split 2 1 m6)
 
   putStrLn "Unregister matrices..."
   unregisterInvalid m1
   unregisterInvalid m2
   unregisterInvalid m3
   unregisterInvalid m4
+  unregisterInvalid m5
+  unregisterInvalid m6
 
   putStrLn "Shutting down..."
   shutdown
@@ -53,7 +71,6 @@ main = do
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
   where
-    dot :: HighVector (Matrix Float) -> HighVector (Matrix Float) -> Matrix Float
     dot v1 v2 = foldl1 matadd $ HighDataTypes.zipWith sgemm v1 v2
 
 reduce :: (a -> a -> a) -> [a] -> a

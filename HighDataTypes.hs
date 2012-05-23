@@ -3,6 +3,7 @@ module HighDataTypes where
 import Prelude hiding (foldr)
 import qualified Data.List
 import Data.Traversable
+import Control.Applicative
 import Data.Foldable
 
 data HighVector a = HighVector [a] deriving Show
@@ -28,6 +29,9 @@ class Crossable m n | m -> n where
 
 instance Foldable HighVector where
 	foldMap f (HighVector l) = foldMap f l
+
+instance Foldable HighMatrix where
+	foldMap f (HighMatrix l) = foldMap (foldMap f) l
 
 instance Functor HighVector where
   fmap f (HighVector l) = HighVector $ fmap f l

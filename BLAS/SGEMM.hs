@@ -7,9 +7,9 @@ import StarPU.Structures
 foreign import ccall unsafe "sgemm_task_create" sgemmTaskCreate :: Handle -> Handle -> Handle -> Task
 
 sgemm :: Matrix Float -> Matrix Float -> Matrix Float
-sgemm a b = floatMatrixComputeTask h w w f deps
+sgemm a b = floatMatrixComputeTask w h w f deps
   where
-    h = width b
-    w = height a
+    w = width b
+    h = height a
     deps = [event a, event b]
     f h = sgemmTaskCreate (handle a) (handle b) h

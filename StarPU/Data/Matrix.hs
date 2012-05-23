@@ -133,8 +133,8 @@ split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
         myW = if c /= x-1 then wp else (wp+wr)
         myH = if r /= y-1 then hp else (hp+hr)
 
-printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
-printHighMatrix m = f 0 0
+traverseHighMatrix :: (a -> IO ()) -> HighMatrix a -> IO ()
+traverseHighMatrix g m = f 0 0
   where
     w = hwidth m
     h = hheight m
@@ -142,7 +142,17 @@ printHighMatrix m = f 0 0
     f x y = do
       if x >= w || y >= h
         then return ()
-        else do printFloatMatrix (r !! y !! x)
+        else do g (r !! y !! x)
                 if x == (w-1)
                   then do f 0 (y+1)
                   else do f (x+1) y
+
+printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
+printHighMatrix = traverseHighMatrix printFloatMatrix
+
+waitAndShow m = do
+  eventWait (event m)
+  putStrLn (show m)
+  
+showHighMatrix :: HighMatrix (Matrix Float) -> IO ()
+showHighMatrix = traverseHighMatrix waitAndShow
