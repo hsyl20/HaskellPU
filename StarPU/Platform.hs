@@ -44,15 +44,19 @@ showRuntimeInfo = putStrLn runtimeInfo
 runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
   where
     infos = [workers,combinedWorkers,cpuWorkers,cudaWorkers,openclWorkers,spuWorkers,async,dataflow]
-    workers = "There are " ++ (show workerCount) ++ " workers"
-    combinedWorkers = "There are " ++ (show combinedWorkerCount) ++ " combined workers"
-    cpuWorkers = "There are " ++ (show cpuWorkerCount) ++ " cpu workers"
-    cudaWorkers = "There are " ++ (show cudaWorkerCount) ++ " cuda workers"
-    spuWorkers = "There are " ++ (show spuWorkerCount) ++ " spu workers"
-    openclWorkers = "There are " ++ (show openclWorkerCount) ++ " opencl workers"
+    workers = areIs workerCount "worker"
+    combinedWorkers = areIs combinedWorkerCount "combined worker"
+    cpuWorkers = areIs cpuWorkerCount "cpu worker"
+    cudaWorkers = areIs cudaWorkerCount "cuda worker"
+    spuWorkers = areIs spuWorkerCount "spu worker"
+    openclWorkers = areIs openclWorkerCount "opencl worker"
     async = "Asynchronous copy mechanism is " ++ (enabled asynchronousCopyEnabled)
     dataflow = "Dataflow mode is " ++ (enabled dataflowModeEnabled)
     enabled x = if x then "enabled" else "disabled"
+    areIs x s = "There " ++ case x of
+      0 -> "isn't any " ++ s
+      1 -> "is a single " ++ s
+      _ -> "are " ++ show x ++ " " ++ s ++ "s"
 
 {- |Compute the given parameter and wait for each task to complete -}
 compute :: a -> IO a
