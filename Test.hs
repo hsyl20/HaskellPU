@@ -7,7 +7,7 @@ import StarPU.DataTypes
 import StarPU.Task
 
 import StarPU.Data.Matrix
-import BLAS.SGEMM
+import BLAS
 import QR
 import HighDataTypes
 
@@ -30,19 +30,6 @@ ms2 = zip msA msB
     msA = drop n ms
     msB = take n ms
 
-printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
-printHighMatrix m = f 0 0
-  where
-    w = width m
-    h = height m
-    HighMatrix r = m
-    f x y = do
-      if x >= w || y >= h
-        then return ()
-        else do printFloatMatrix (r !! x !! y) >>= putStrLn
-                if x == (w-1)
-                  then do f 0 (y+1)
-                  else do f (x+1) y
 
 main = do
   putStrLn "Initializing..."
@@ -59,7 +46,7 @@ main = do
 
 --  r <- compute $ map (uncurry sgemm) ms2
 
-  r <- compute $ split 2 2 m2
+  r <- compute $ split 3 2 m2
 
   printHighMatrix r
 

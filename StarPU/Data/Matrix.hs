@@ -121,3 +121,17 @@ split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
       where
 	myW = if c /= x-1 then wp else (wp+wr)
 	myH = if r /= y-1 then hp else (hp+hr)
+
+printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
+printHighMatrix m = f 0 0
+  where
+    w = width m
+    h = height m
+    HighMatrix r = m
+    f x y = do
+      if x >= w || y >= h
+        then return ()
+        else do printFloatMatrix (r !! y !! x) >>= putStrLn
+                if x == (w-1)
+                  then do f 0 (y+1)
+                  else do f (x+1) y

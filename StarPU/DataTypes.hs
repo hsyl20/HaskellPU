@@ -1,6 +1,5 @@
 module StarPU.DataTypes where
 
-import HighDataTypes
 import StarPU.Structures
 import StarPU.Event
 import StarPU.Task
