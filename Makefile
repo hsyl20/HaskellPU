@@ -4,9 +4,13 @@ EXEC=Test.hs
 
 HSCFILES= $(wildcard *.hsc StarPU/*.hsc)
 HSC= $(HSCFILES:.hsc=.hs)
+HSCOBJS= $(HSCFILES:.hsc=.o)
 
 CFILES= $(wildcard *.c StarPU/*.c BLAS/*.c StarPU/Data/*.c)
 OBJS= $(CFILES:.c=.o)
+
+HSFILES= $(wildcard *.hs StarPU/*.hs BLAS/*.hs StarPU/Data/*.hs)
+HSOBJS= $(HSFILES:.hs=.o)
 
 %.hs: %.hsc
 	@hsc2hs --cflag=`pkg-config libstarpu --cflags-only-I` $<
@@ -19,5 +23,5 @@ all: $(HSC) $(EXEC) $(OBJS)
 	
 
 clean:
-	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS)
+	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS)
 
