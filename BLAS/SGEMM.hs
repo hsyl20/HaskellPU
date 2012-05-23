@@ -9,7 +9,7 @@ foreign import ccall unsafe "sgemm_task_create" sgemmTaskCreate :: Handle -> Han
 sgemm :: Matrix Float -> Matrix Float -> Matrix Float
 sgemm a b = floatMatrixComputeTask h w w f deps
   where
-    h = nx b
-    w = ny a
+    h = width b
+    w = height a
     deps = [event a, event b]
     f h = sgemmTaskCreate (handle a) (handle b) h

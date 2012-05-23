@@ -4,8 +4,10 @@ module StarPU.Platform where
 
 import StarPU.Structures
 import StarPU.Task
+import StarPU.Event
 import Foreign.Ptr
 import Foreign.C
+import Control.DeepSeq
 
 {- StarPU's platform foreign functions -}
 
@@ -59,8 +61,5 @@ runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
       _ -> "are " ++ show x ++ " " ++ s ++ "s"
 
 {- |Compute the given parameter and wait for each task to complete -}
-compute :: a -> IO a
-compute a = do
-  r <- return $! a
-  taskWaitForAll
-  return r
+compute :: Data a => a -> IO ()
+compute a = eventWait (event a)

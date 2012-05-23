@@ -16,11 +16,14 @@ import System.IO.Unsafe
 
 import HighDataTypes
 
+foreign import ccall unsafe "sub_matrix_task_create" subMatrixTaskCreate :: Word -> Word -> Handle -> Handle -> Task
+foreign import ccall unsafe "duplicate_matrix_task_create" duplicateMatrixTaskCreate :: Handle -> Handle -> IO Task
+
 data Matrix a = Matrix {
   matrixHandle :: Handle,
   matrixEvent :: Event,
-  nx :: Word,
-  ny :: Word,
+  width :: Word,
+  height :: Word,
   ld :: Word,
   elemSize :: Word
 }
@@ -62,18 +65,26 @@ floatMatrixRegisterInvalid width height = do
 
 
 floatMatrixComputeTask :: Word -> Word -> Word -> (Handle -> Task) -> [Event] -> Matrix Float
-floatMatrixComputeTask nx ny ld f deps = unsafePerformIO $ do
+floatMatrixComputeTask w h ld f deps = unsafePerformIO $ do
   --FIXME: StarPU is not able to allocate a matrix with a NULL ptr
-  handle <- floatMatrixRegisterInvalid nx ny
+  handle <- floatMatrixRegisterInvalid w h
   task <- return $ f handle
   mapM (taskDependsOn task) deps
   taskSubmit task
-  return $ Matrix handle (taskEvent task) nx ny ld 4
+  return $ Matrix handle (taskEvent task) w h ld 4
+
+floatMatrixDuplicate :: Matrix Float -> IO (Matrix Float)
+floatMatrixDuplicate m = do
+  hdl <- floatMatrixRegisterInvalid (width m) (height m)
+  task <- duplicateMatrixTaskCreate (handle m) hdl
+  taskDependsOn task (event m)
+  taskSubmit task
+  return $ Matrix hdl (taskEvent task) (width m) (height m) (ld m) (elemSize m)
 
 instance Show (Matrix a) where
-  show (Matrix handle event nx ny ld elemSize)  =
-    "Matrix(nx = "++ show nx ++
-    "; ny = "++ show ny ++
+  show (Matrix handle event w h ld elemSize)  =
+    "Matrix(width = "++ show w ++
+    "; height = "++ show h ++
     "; ld = "++ show ld ++
     "; elemsize = "++ show elemSize ++
     "; handle = "++ show handle ++")"
@@ -89,16 +100,16 @@ readFloatMatrix m = do
   release m
   return values
   where
-    rows = range (0, (ny m) - 1)
+    rows = range (0, (height m) - 1)
     rowOffset row = fromIntegral $ row * (ld m) * (elemSize m)
-    rowSize = fromIntegral $ (nx m)
+    rowSize = fromIntegral $ (width m)
 
-printFloatMatrix :: Matrix Float -> IO String
+printFloatMatrix :: Matrix Float -> IO ()
 printFloatMatrix m = do
   ms <- readFloatMatrix m
-  return $ unlines $ map show ms
+  putStrLn $ unlines $ map show ms
+  return ()
 
-foreign import ccall unsafe "sub_matrix_task_create" subMatrixTaskCreate :: Word -> Word -> Handle -> Handle -> Task
 
 subMatrix :: Word -> Word -> Word -> Word -> Matrix Float -> Matrix Float
 subMatrix x y w h m = floatMatrixComputeTask w h w f deps
@@ -111,27 +122,27 @@ split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
   where
     rows = range (0,y-1)
     cols = range (0,x-1)
-    width = nx m
-    height = ny m
-    wp = div width x
-    wr = width - (x*wp)
-    hp = div height y
-    hr = height - (y*hp)
+    w = width m
+    h = height m
+    wp = div w x
+    wr = w - (x*wp)
+    hp = div h y
+    hr = h - (y*hp)
     f c r = subMatrix (c*wp) (r*hp) myW myH m
       where
-	myW = if c /= x-1 then wp else (wp+wr)
-	myH = if r /= y-1 then hp else (hp+hr)
+        myW = if c /= x-1 then wp else (wp+wr)
+        myH = if r /= y-1 then hp else (hp+hr)
 
 printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
 printHighMatrix m = f 0 0
   where
-    w = width m
-    h = height m
+    w = hwidth m
+    h = hheight m
     HighMatrix r = m
     f x y = do
       if x >= w || y >= h
         then return ()
-        else do printFloatMatrix (r !! y !! x) >>= putStrLn
+        else do printFloatMatrix (r !! y !! x)
                 if x == (w-1)
                   then do f 0 (y+1)
                   else do f (x+1) y

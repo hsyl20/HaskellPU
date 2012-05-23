@@ -18,7 +18,7 @@ qr_lu f11 f1k fk1 fkk i a = unsplit i i bs
     bk1 = fmap (fk1 b11) ak1
     b1k = fmap (f1k b11) a1k
     tmpkk = zipWith fkk akk (cross bk1 b1k)
-    bkk = if (width tmpkk == 0) then tmpkk else split (i-1) (i-1) $ qr_lu f11 f1k fk1 fkk i $ unsplit (i-1) (i-1) tmpkk
+    bkk = if (hwidth tmpkk == 0) then tmpkk else split (i-1) (i-1) $ qr_lu f11 f1k fk1 fkk i $ unsplit (i-1) (i-1) tmpkk
     bs = fromTriangularSplit b11 bk1 b1k bkk
 
 

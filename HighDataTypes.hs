@@ -26,6 +26,8 @@ class Zippable m where
 class Crossable m n | m -> n where
   crossWith :: (a->b->c) -> m a -> m b -> n c
 
+instance Foldable HighVector where
+	foldMap f (HighVector l) = foldMap f l
 
 instance Functor HighVector where
   fmap f (HighVector l) = HighVector $ fmap f l
@@ -79,11 +81,11 @@ tail :: HighVector a -> HighVector a
 tail (HighVector l) = HighVector $ Data.List.tail l
 
 
-height :: HighMatrix a -> Int
-height (HighMatrix m) = length m
+hheight :: HighMatrix a -> Int
+hheight (HighMatrix m) = length m
 
-width :: HighMatrix a -> Int
-width m = height $ transpose m
+hwidth :: HighMatrix a -> Int
+hwidth m = hheight $ transpose m
 
 cons :: a -> HighVector a -> HighVector a
 cons a (HighVector l) = HighVector (a:l)

@@ -6,8 +6,8 @@
 
 static struct starpu_perfmodel sub_matrix_model =
 {
-	.type = STARPU_HISTORY_BASED,
-	.symbol = "SUB_MATRIX"
+  .type = STARPU_HISTORY_BASED,
+  .symbol = "SUB_MATRIX"
 };
 
 static void sub_matrix_cuda(void *descr[], void *_args) {
@@ -40,7 +40,7 @@ static void sub_matrix_cpu(void *descr[], void *args) {
 
 static struct starpu_codelet sub_matrix_codelet =
 {
-  .modes = { STARPU_R, STARPU_R, STARPU_W },
+  .modes = { STARPU_R, STARPU_W },
   .where = STARPU_CPU,
   .cpu_funcs = {sub_matrix_cpu, NULL},
   .cuda_funcs = {sub_matrix_cuda, NULL},
@@ -62,4 +62,3 @@ struct starpu_task * sub_matrix_task_create(unsigned x, unsigned y, starpu_data_
 
   return task;
 }
-
