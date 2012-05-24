@@ -12,6 +12,7 @@ import StarPU.Data.Matrix
 import BLAS
 import QR
 import HighDataTypes
+import IO
 
 n = 4096
 nb = 4
@@ -22,7 +23,7 @@ m3 = floatMatrixInit (\x y -> 2.0) n n
 m4 = floatMatrixInit (\x y -> 3.0) n n
 
 m5 = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) 10 10
-m6 = floatMatrixInit (\x y -> fromIntegral (x + y)) 8 10
+m6 = floatMatrixInit (\x y -> fromIntegral (10 + x + y)) 8 10
 
 ms = map createMatrix $ range (1, 30)
   where
@@ -30,48 +31,24 @@ ms = map createMatrix $ range (1, 30)
 
 
 main = do
-  putStrLn "Initializing runtime system..."
+  putStrLn "Choose an example to run:"
+  putStrLn "  1 - Reduction"
+  putStrLn "  2 - Split Matrix Multiplication"
+  putStrLn "  3 - Simple Matrix Multiplication (displayed)"
+  putStrLn "  4 - Simple Matrix Addition (displayed)"
+  putStr "> "
+  hFlush stdout
+  c <- getLine
+
   t0 <- getCurrentTime
-  defaultInit
-  cublasInit
-  showRuntimeInfo
+  runtimeInit
 
-  putStrLn "Initializing data..."
-  t1 <- getCurrentTime
---  mapM compute ms
-  mapM compute [m1,m2,m3,m4,m5,m6]
+  (t1,t2,t3) <- case read c of
+    1 -> sample ms reduction
+    2 -> sample [m3,m4] splitMatMult
+    3 -> sample [m5,m6] simpleMatMult
+    4 -> sample [m5,m6] simpleMatAdd
 
-  putStrLn "Computing..."
-  
-  t2 <- getCurrentTime
-
-{-  printFloatMatrix $ sgemm m2 m3
-
-  putStrLn "A"
-  printFloatMatrix m5
-
-  putStrLn "B"
-  printFloatMatrix m6
-
-  putStrLn "A * B"
-  printFloatMatrix $ sgemm m5 m6
-  
-  putStrLn "A (using blocks)"
-  printHighMatrix (split 1 2 m5)
-
-  putStrLn "B (using blocks)"
-  printHighMatrix (split 2 1 m6)
-
-  putStrLn "A * B (using blocks)"
-  printHighMatrix $ highSGEMM (split 1 2 m5) (split 2 1 m6)
--}
-
-  traverseHighMatrix compute  $ highSGEMM (split nb nb m3) (split nb nb m4)
---  compute $ reduce sgemm ms
-
-  t3 <- getCurrentTime
-  putStrLn "Done."
-  
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
   putStrLn $ "Data initialisation time: " ++ show (diffUTCTime t2 t1)
@@ -79,7 +56,48 @@ main = do
   putStrLn "==============================================================="
 
 
+runtimeInit = do
+  putStrLn "Initializing runtime system..."
+  defaultInit
+  cublasInit
+  showRuntimeInfo
 
+reduction ms = compute $ reduce sgemm ms
+
+splitMatMult [a,b] = traverseHighMatrix compute  $ highSGEMM (split nb nb a) (split nb nb b)
+
+simpleMatMult [a,b] = do
+  putStrLn "A"
+  printFloatMatrix a
+
+  putStrLn "B"
+  printFloatMatrix b
+
+  putStrLn "A * B"
+  printFloatMatrix $ sgemm a b
+  
+simpleMatAdd [a,b] = do
+  putStrLn "A"
+  printFloatMatrix a
+
+  putStrLn "B"
+  printFloatMatrix b
+
+  putStrLn "A + B"
+  printFloatMatrix $ matadd a b
+
+sample ds f = do
+  putStrLn "Initializing data..."
+  t1 <- getCurrentTime
+  mapM compute ds
+
+  putStrLn "Computing..."
+  t2 <- getCurrentTime
+  f ds
+
+  t3 <- getCurrentTime
+  putStrLn "Done."
+  return (t1,t2,t3)
 
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
@@ -89,7 +107,7 @@ highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
 reduce :: (a -> a -> a) -> [a] -> a
 reduce f []  = undefined
 reduce f [a] = a
-reduce f xs = foldl1 f (inner xs)
+reduce f xs = xs `seq` reduce f (inner xs)
   where
     inner [] = []
     inner [a] = [a]
