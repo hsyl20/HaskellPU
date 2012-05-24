@@ -37,9 +37,3 @@ instance Storable StarPUConf where
         (#poke struct starpu_conf, ncuda) ptr ncuda
         (#poke struct starpu_conf, nopencl) ptr nopencl
         (#poke struct starpu_conf, nspus) ptr nspus
-
-type Handle = Ptr ()
-
-class Data a where
-  handle :: a -> Handle
-  event :: a -> Event

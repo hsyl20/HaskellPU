@@ -1,7 +1,6 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
-
 module StarPU.Platform where
 
+import StarPU.Data
 import StarPU.Structures
 import StarPU.Task
 import StarPU.Event

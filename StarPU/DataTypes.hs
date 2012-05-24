@@ -3,6 +3,7 @@ module StarPU.DataTypes where
 import StarPU.Structures
 import StarPU.Event
 import StarPU.Task
+import StarPU.Data
 import StarPU.AccessMode
 
 import Data.Word

@@ -3,6 +3,7 @@ module StarPU.Data.Matrix where
 import StarPU.AccessMode
 import StarPU.DataTypes
 import StarPU.Event
+import StarPU.Data
 import StarPU.Structures
 import StarPU.Task
 
