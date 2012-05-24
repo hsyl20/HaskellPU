@@ -12,11 +12,16 @@ import Data.Word
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
+import Foreign.C
 import Foreign.Storable
 import System.IO.Unsafe
+import System.Mem.Weak
 
 import HighDataTypes
 
+foreign import ccall unsafe "starpu_matrix_data_register" matrixRegister :: Ptr Handle -> Word -> WordPtr -> Word -> Word -> Word -> CSize -> IO ()
+foreign import ccall unsafe "starpu_variable_data_register" variableRegister :: Ptr Handle -> Word -> WordPtr -> CSize -> IO ()
+foreign import ccall "starpu_matrix_get_local_ptr" matrixLocalPtr :: Handle -> IO WordPtr
 foreign import ccall unsafe "sub_matrix_task_create" subMatrixTaskCreate :: Word -> Word -> Handle -> Handle -> Task
 foreign import ccall unsafe "duplicate_matrix_task_create" duplicateMatrixTaskCreate :: Handle -> Handle -> IO Task
 
@@ -37,7 +42,9 @@ instance Data (Matrix a) where
 floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr width height ld = alloca $ \handle -> do
   matrixRegister handle 0 nptr nld nx ny 4
-  peek handle
+  hdl <- peek handle
+  addFinalizer hdl $ putStrLn ("TODO: Unregistering (from Haskell) " ++ show hdl)
+  return hdl
   where
     nptr = fromIntegral $ ptrToWordPtr ptr
     nld = fromIntegral ld

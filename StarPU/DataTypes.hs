@@ -23,7 +23,6 @@ foreign import ccall "starpu_data_invalidate" dataInvalidate :: Handle -> IO ()
 foreign import ccall "starpu_data_release" dataRelease :: Handle -> IO ()
 
 foreign import ccall "starpu_data_acquire" dataAcquire :: Handle -> AccessMode -> IO Int
-foreign import ccall "starpu_matrix_get_local_ptr" matrixLocalPtr :: Handle -> IO CUIntPtr
 
 unregister :: Data a => a -> IO ()
 unregister a = dataUnregister (handle a)
@@ -39,9 +38,5 @@ release a = dataRelease (handle a)
 
 acquire :: Data a => AccessMode -> a -> IO Int
 acquire mode a = dataAcquire (handle a) mode
-
-foreign import ccall unsafe "starpu_data_interfaces.h starpu_matrix_data_register" matrixRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CUInt -> CUInt -> CUInt -> CSize -> IO ()
-
-foreign import ccall unsafe "starpu_data_interfaces.h starpu_variable_data_register" variableRegister :: Ptr Handle -> CUInt -> CUIntPtr -> CSize -> IO ()
 
 foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())
