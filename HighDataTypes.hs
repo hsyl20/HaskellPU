@@ -52,6 +52,15 @@ instance Zippable HighMatrix where
 cross :: Crossable m n => m a  -> m b -> n (a,b)
 cross a b = crossWith (,) a b
 
+reduce :: (a -> a -> a) -> HighVector a -> a
+reduce f (HighVector [])  = undefined
+reduce f (HighVector [a]) = a
+reduce f (HighVector xs) = xs `seq` reduce f (HighVector (inner xs))
+  where
+    inner [] = []
+    inner [a] = [a]
+    inner (a:b:xs) = [f a b] ++ inner xs
+
 -- |Extract a row of a matrix
 row :: Int -> HighMatrix a -> HighVector a
 row i (HighMatrix m) = HighVector (m !! i)

@@ -1,5 +1,6 @@
 import Prelude hiding (mapM,foldl1)
 import Data.Ix
+import Data.Word
 import Data.Traversable
 import Data.Foldable
 import Data.Time.Clock
@@ -13,22 +14,6 @@ import BLAS
 import QR
 import HighDataTypes
 import IO
-
-n = 4096
-nb = 4
-
-m1 = floatMatrixInit (\x y -> 1.0) n n
-m2 = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
-m3 = floatMatrixInit (\x y -> 2.0) n n
-m4 = floatMatrixInit (\x y -> 3.0) n n
-
-m5 = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) 10 10
-m6 = floatMatrixInit (\x y -> fromIntegral (10 + x + y)) 8 10
-
-ms = map createMatrix $ range (1, 30)
-  where
-    createMatrix v = floatMatrixInit (\x y -> fromIntegral v) n n
-
 
 main = do
   putStrLn "Choose an example to run:"
@@ -44,10 +29,12 @@ main = do
   runtimeInit
 
   (t1,t2,t3) <- case read c of
-    1 -> sample ms reduction
-    2 -> sample [m3,m4] splitMatMult
-    3 -> sample [m5,m6] simpleMatMult
-    4 -> sample [m5,m6] simpleMatAdd
+    1 -> sample (matrixList 1024 1024)  reduction
+    2 -> do
+      (n,va,ha,vb,hb) <- selectSizes
+      sample [setMatrix n n 2.0, setMatrix n n 3.0] (splitMatMult va ha vb hb)
+    3 -> sample [identityMatrix 10, customMatrix 10 10] simpleMatMult
+    4 -> sample [setMatrix 10 5 2.0, setMatrix 10 5 3.0] simpleMatAdd
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -56,15 +43,39 @@ main = do
   putStrLn "==============================================================="
 
 
+selectSizes :: IO (Word,Word,Word,Word,Word)
+selectSizes = do
+  putStr "Enter matrix size: "
+  hFlush stdout
+  n <- getLine
+  putStr "Enter vertical split count for A: "
+  hFlush stdout
+  va <- getLine
+  putStr "Enter horizontal split count for A: "
+  hFlush stdout
+  ha <- getLine
+  putStr "Enter vertical split count for B: "
+  hFlush stdout
+  vb <- getLine
+  putStr "Enter horizontal split count for B: "
+  hFlush stdout
+  hb <- getLine
+  return (read n,read va,read ha, read hb, read vb)
+
+identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
+setMatrix n m value = floatMatrixInit (\x y -> value) n m
+customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x + y)) 8 10
+matrixList n m = map (setMatrix n m . fromIntegral) $ range (1, 30)
+
 runtimeInit = do
   putStrLn "Initializing runtime system..."
   defaultInit
   cublasInit
   showRuntimeInfo
 
-reduction ms = compute $ reduce sgemm ms
+reduction ms = compute $ reduce sgemm (HighVector ms)
 
-splitMatMult [a,b] = traverseHighMatrix compute  $ highSGEMM (split nb nb a) (split nb nb b)
+splitMatMult va ha vb hb [a,b] = traverseHighMatrix compute  $ highSGEMM (split va ha a) (split vb hb b)
 
 simpleMatMult [a,b] = do
   putStrLn "A"
@@ -102,13 +113,5 @@ sample ds f = do
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
   where
-    dot v1 v2 = foldl1 matadd $ HighDataTypes.zipWith sgemm v1 v2
+    dot v1 v2 = reduce matadd $ HighDataTypes.zipWith sgemm v1 v2
 
-reduce :: (a -> a -> a) -> [a] -> a
-reduce f []  = undefined
-reduce f [a] = a
-reduce f xs = xs `seq` reduce f (inner xs)
-  where
-    inner [] = []
-    inner [a] = [a]
-    inner (a:b:xs) = [f a b] ++ inner xs
