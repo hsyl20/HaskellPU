@@ -72,17 +72,6 @@ main = do
   t3 <- getCurrentTime
   putStrLn "Done."
   
-  putStrLn "Unregister matrices..."
-  unregisterInvalid m1
-  unregisterInvalid m2
-  unregisterInvalid m3
-  unregisterInvalid m4
-  unregisterInvalid m5
-  unregisterInvalid m6
-
-  putStrLn "Shutting down..."
-  shutdown
-
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
   putStrLn $ "Data initialisation time: " ++ show (diffUTCTime t2 t1)
