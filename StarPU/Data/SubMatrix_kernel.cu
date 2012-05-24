@@ -4,8 +4,8 @@ __global__ void MatSub(unsigned x, unsigned y, unsigned w, unsigned h, const flo
 
   unsigned gx = blockDim.x * blockIdx.x + threadIdx.x;
   unsigned gy = blockDim.y * blockIdx.y + threadIdx.y;
-  if (gx >= x && gx < w && gy >= y && gy < h)
-    B[gy*ldB + gx] = A[gy*ldA + gx];
+  if (gx < w && gy < h)
+    B[gy*ldB + gx] = A[(gy+y)*ldA + gx + x];
 }
 
 
