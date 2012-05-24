@@ -3,6 +3,7 @@
 #include <cublas.h>
 
 #include "../Task.h"
+#include "cuda_kernels.h"
 
 static struct starpu_perfmodel duplicate_matrix_model =
 {
@@ -11,11 +12,17 @@ static struct starpu_perfmodel duplicate_matrix_model =
 };
 
 static void duplicate_matrix_cuda(void *descr[], void *_args) {
-}
+  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
 
-struct Point {
-  unsigned x,y;
-};
+  unsigned w = STARPU_MATRIX_GET_NX(descr[1]);
+  unsigned h = STARPU_MATRIX_GET_NY(descr[1]);
+
+  cuda_mat_duplicate(w,h,a,lda,b,ldb);
+  cudaStreamSynchronize(starpu_cuda_get_local_stream());
+}
 
 static void duplicate_matrix_cpu(void *descr[], void *args) {
   float *src = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
@@ -37,7 +44,7 @@ static void duplicate_matrix_cpu(void *descr[], void *args) {
 static struct starpu_codelet duplicate_matrix_codelet =
 {
   .modes = { STARPU_R, STARPU_W },
-  .where = STARPU_CPU,
+  .where = STARPU_CPU | STARPU_CUDA,
   .cpu_funcs = {duplicate_matrix_cpu, NULL},
   .cuda_funcs = {duplicate_matrix_cuda, NULL},
   .nbuffers = 2,

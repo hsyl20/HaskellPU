@@ -8,7 +8,7 @@ OBJS= $(CFILES:.c=.o)
 HSFILES= $(wildcard *.hs StarPU/*.hs BLAS/*.hs StarPU/Data/*.hs)
 HSOBJS= $(HSFILES:.hs=.o)
 
-CUFILES= $(wildcard BLAS/*.cu)
+CUFILES= $(wildcard BLAS/*.cu StarPU/Data/*.cu)
 CUOBJS= $(CUFILES:.cu=.o)
 
 %.hs: %.hsc
