@@ -1,4 +1,5 @@
 import Prelude hiding (mapM,foldl1)
+
 import Data.Ix
 import Data.Word
 import Data.Traversable
@@ -22,6 +23,7 @@ main = do
   putStrLn "  2 - Split Matrix Multiplication"
   putStrLn "  3 - Simple Matrix Multiplication (displayed)"
   putStrLn "  4 - Simple Matrix Addition (displayed)"
+  putStrLn "  5 - Rewriting of Multiple Matrix Additions"
   putStr "> "
   hFlush stdout
   c <- getLine
@@ -36,6 +38,7 @@ main = do
       sample [setMatrix n n 2.0, setMatrix n n 3.0] (splitMatMult va ha vb hb)
     3 -> sample [identityMatrix 10, customMatrix 10 10] simpleMatMult
     4 -> sample [setMatrix 10 5 2.0, setMatrix 10 5 3.0] simpleMatAdd
+    5 -> sample (map (setMatrix 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -97,6 +100,9 @@ simpleMatAdd [a,b] = do
 
   putStrLn "A + B"
   printFloatMatrix $ a + b
+
+rewrittenMatAdd [a,b,c,d,e,f,g,h,i,j] = do
+  compute $ a + b + c + d + e + f + g + h + i + j
 
 sample ds f = do
   putStrLn "Initializing data..."

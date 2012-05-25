@@ -5,6 +5,8 @@ import StarPU.Data
 import StarPU.Data.Matrix
 import StarPU.Task
 import StarPU.Structures
+import StarPU.Platform
+import HighDataTypes
 
 foreign import ccall unsafe "floatmatrix_add_task_create" floatMatrixAddTaskCreate :: Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_sub_task_create" floatMatrixSubTaskCreate :: Handle -> Handle -> Handle -> Task
@@ -15,6 +17,21 @@ floatMatrixOp g a b w h = floatMatrixComputeTask w h w f deps
   where
     deps = [event a, event b]
     f = g (handle a) (handle b)
+
+{-# RULES
+"reduce_plus" forall x y z .  floatMatrixAdd (floatMatrixAdd x y) z = reduce floatMatrixAdd (HighVector [x,y,z])
+"reduce_plus_add" forall xs y .  floatMatrixAdd (reduce floatMatrixAdd (HighVector xs)) y = reduce floatMatrixAdd (HighVector (xs ++ [y]))
+
+"reduce_sub" forall x y z .  floatMatrixSub (floatMatrixSub x y) z = reduce floatMatrixSub (HighVector [x,y,z])
+"reduce_sub_add" forall xs y .  floatMatrixSub (reduce floatMatrixSub (HighVector xs)) y = reduce floatMatrixSub (HighVector (xs ++ [y]))
+
+"reduce_mul" forall x y z .  floatMatrixMul (floatMatrixMul x y) z = reduce floatMatrixMul (HighVector [x,y,z])
+"reduce_mul_add" forall xs y .  floatMatrixMul (reduce floatMatrixMul (HighVector xs)) y = reduce floatMatrixMul (HighVector (xs ++ [y]))
+  #-}
+
+{-# NOINLINE floatMatrixAdd #-}
+{-# NOINLINE floatMatrixSub #-}
+{-# NOINLINE floatMatrixMul #-}
 
 floatMatrixAdd :: Matrix Float -> Matrix Float -> Matrix Float
 floatMatrixAdd a b = floatMatrixOp floatMatrixAddTaskCreate a b (width a) (height a)
