@@ -3,12 +3,12 @@
 #include <cublas.h>
 
 #include "../Task.h"
-#include "cuda_kernels.h"
+#include "FloatMatrix_kernels.h"
 
 static struct starpu_perfmodel sub_matrix_model =
 {
   .type = STARPU_HISTORY_BASED,
-  .symbol = "SUB_MATRIX"
+  .symbol = "FLOATMATRIX_SUBMATRIX"
 };
 
 struct Point {
@@ -26,7 +26,7 @@ static void sub_matrix_cuda(void *descr[], void *args) {
 
   struct Point * p = (struct Point *)args;
 
-  cuda_mat_sub(p->x, p->y, w, h, a, lda, b, ldb);
+  cuda_floatmatrix_submatrix(p->x, p->y, w, h, a, lda, b, ldb);
   free(p);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }

@@ -24,6 +24,7 @@ foreign import ccall unsafe "starpu_util.h starpu_helper_cublas_init" cublasInit
 
 foreign import ccall unsafe "starpu_data_set_default_sequential_consistency_flag" dataflowModeSet :: CUInt -> IO ()
 foreign import ccall unsafe "starpu_data_get_default_sequential_consistency_flag" dataflowModeGet :: CUInt
+foreign import ccall unsafe "_starpu_get_sched_policy" schedPolicy :: Ptr ()
 
 {- Platform API -}
 

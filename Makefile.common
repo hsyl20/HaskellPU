@@ -21,7 +21,7 @@ CUOBJS= $(CUFILES:.cu=.o)
 	gcc -Wall -c -o $@ `pkg-config libstarpu --cflags-only-I` -I$(CUBLASINC) $<
 
 all: $(HSC) $(EXEC) $(OBJS) $(CUOBJS)
-	ghc -O -rtsopts -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -L$(CUBLASLIB) -lcublas -lcudart $(EXEC) $(OBJS) $(CUOBJS)
+	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -L$(CUBLASLIB) -lcublas -lcudart $(EXEC) $(OBJS) $(CUOBJS)
 	
 
 clean:

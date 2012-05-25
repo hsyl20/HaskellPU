@@ -10,7 +10,8 @@ import StarPU.DataTypes
 import StarPU.Task
 
 import StarPU.Data.Matrix
-import BLAS
+import StarPU.Data.FloatMatrix
+
 import QR
 import HighDataTypes
 import IO
@@ -73,7 +74,7 @@ runtimeInit = do
   cublasInit
   showRuntimeInfo
 
-reduction ms = compute $ reduce sgemm (HighVector ms)
+reduction ms = compute $ reduce (*) (HighVector ms)
 
 splitMatMult va ha vb hb [a,b] = traverseHighMatrix compute  $ highSGEMM (split va ha a) (split vb hb b)
 
@@ -85,7 +86,7 @@ simpleMatMult [a,b] = do
   printFloatMatrix b
 
   putStrLn "A * B"
-  printFloatMatrix $ sgemm a b
+  printFloatMatrix $ a * b
   
 simpleMatAdd [a,b] = do
   putStrLn "A"
@@ -95,7 +96,7 @@ simpleMatAdd [a,b] = do
   printFloatMatrix b
 
   putStrLn "A + B"
-  printFloatMatrix $ matadd a b
+  printFloatMatrix $ a + b
 
 sample ds f = do
   putStrLn "Initializing data..."
@@ -113,5 +114,5 @@ sample ds f = do
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
   where
-    dot v1 v2 = reduce matadd $ HighDataTypes.zipWith sgemm v1 v2
+    dot v1 v2 = reduce (+) $ HighDataTypes.zipWith (*) v1 v2
 

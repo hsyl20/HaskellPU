@@ -52,17 +52,26 @@ floatMatrixRegister ptr width height ld = alloca $ \handle -> do
     ny = fromIntegral height
 
 -- |Initialize a new matrix of Float using the given function
-floatMatrixInit :: (Word -> Word -> Float) -> Word -> Word -> Matrix Float
-floatMatrixInit f width height = unsafePerformIO $ do
-  ptr <- starpuMalloc rawSize
-  pokeArray (castPtr ptr) cells
+floatMatrixMayInit :: Maybe (Word -> Word -> Float) -> Word -> Word -> Matrix Float
+floatMatrixMayInit f width height = unsafePerformIO $ do
+  ptr <- starpuMalloc $ fromIntegral (width*height*4)
+  case f of
+    Nothing -> return ()
+    Just g -> pokeArray (castPtr ptr) cells
+      where
+        cells = concat $ map (\row -> map (\col -> g row col) cols) rows
+        rows = range (0,height-1)
+        cols = range (0,width-1)
   handle <- floatMatrixRegister ptr width height width
   return $ Matrix handle dummyEvent width height width 4
-  where
-    rawSize = fromIntegral (width*height*4)
-    rows = range (0,height-1)
-    cols = range (0,width-1)
-    cells = concat $ map (\row -> map (\col -> f row col) cols) rows
+
+-- |Initialize a new matrix of Float using the given function
+floatMatrixInit :: (Word -> Word -> Float) -> Word -> Word -> Matrix Float
+floatMatrixInit f width height = floatMatrixMayInit (Just f) width height
+
+-- |Matrix of Float containing invalid values
+floatMatrixInvalid :: Word -> Word -> Matrix Float
+floatMatrixInvalid width height = floatMatrixMayInit Nothing width height
 
 floatMatrixRegisterInvalid :: Word -> Word -> IO Handle
 floatMatrixRegisterInvalid width height = do

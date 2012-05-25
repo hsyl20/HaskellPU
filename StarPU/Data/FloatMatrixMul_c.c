@@ -2,7 +2,7 @@
 #include <starpu_cuda.h>
 #include <cublas.h>
 
-#include "../StarPU/Task.h"
+#include "../Task.h"
 
 static double sgemm_cpu_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl) {
   int32_t n = starpu_matrix_get_nx(task->handles[0]);
@@ -24,7 +24,7 @@ static struct starpu_perfmodel sgemm_model =
     [STARPU_CUDA_DEFAULT][0] = { .cost_function = sgemm_cuda_cost }
   },
   .type = STARPU_HISTORY_BASED,
-  .symbol = "SGEMM"
+  .symbol = "FLOATMATRIX_MUL"
 };
 
 static void sgemm_cuda(void *descr[], void *_args) {
@@ -57,7 +57,7 @@ static struct starpu_codelet sgemm_codelet =
   .model = &sgemm_model
 };
 
-struct starpu_task * sgemm_task_create(starpu_data_handle_t a, starpu_data_handle_t b, starpu_data_handle_t c) {
+struct starpu_task * floatmatrix_mul_task_create(starpu_data_handle_t a, starpu_data_handle_t b, starpu_data_handle_t c) {
   struct starpu_task * task = starpu_task_create_ex();
   task->cl = &sgemm_codelet;
   task->handles[0] = a;

@@ -3,12 +3,12 @@
 #include <cublas.h>
 
 #include "../Task.h"
-#include "cuda_kernels.h"
+#include "FloatMatrix_kernels.h"
 
 static struct starpu_perfmodel duplicate_matrix_model =
 {
   .type = STARPU_HISTORY_BASED,
-  .symbol = "DUPLICATE_MATRIX"
+  .symbol = "FLOATMATRIX_DUPLICATE"
 };
 
 static void duplicate_matrix_cuda(void *descr[], void *_args) {
@@ -20,7 +20,7 @@ static void duplicate_matrix_cuda(void *descr[], void *_args) {
   unsigned w = STARPU_MATRIX_GET_NX(descr[1]);
   unsigned h = STARPU_MATRIX_GET_NY(descr[1]);
 
-  cuda_mat_duplicate(w,h,a,lda,b,ldb);
+  cuda_floatmatrix_duplicate(w,h,a,lda,b,ldb);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 
