@@ -7,6 +7,7 @@ import StarPU.Event
 import Foreign.Ptr
 import Foreign.C
 import Control.DeepSeq
+import System.IO.Unsafe
 
 {- StarPU's platform foreign functions -}
 
@@ -24,7 +25,8 @@ foreign import ccall unsafe "starpu_util.h starpu_helper_cublas_init" cublasInit
 
 foreign import ccall unsafe "starpu_data_set_default_sequential_consistency_flag" dataflowModeSet :: CUInt -> IO ()
 foreign import ccall unsafe "starpu_data_get_default_sequential_consistency_flag" dataflowModeGet :: CUInt
-foreign import ccall unsafe "_starpu_get_sched_policy" schedPolicy :: Ptr ()
+foreign import ccall unsafe "starpu_sched_policy_name" starpuSchedPolicyName :: CString
+foreign import ccall unsafe "starpu_sched_policy_description" starpuSchedPolicyDescription :: CString
 
 {- Platform API -}
 
@@ -33,6 +35,14 @@ asynchronousCopyEnabled = (asynchronousCopyDisabled == 0)
 
 {- |Indicate if StarPU's data flow mode is enabled -}
 dataflowModeEnabled = (dataflowModeGet /= 0)
+
+schedPolicyName = unsafePerformIO $ do
+  s <- peekCString $ starpuSchedPolicyName
+  return s
+
+schedPolicyDescription = unsafePerformIO $ do
+  s <- peekCString $ starpuSchedPolicyDescription
+  return s
 
 {- |Initialize StarPU to be used from Haskell -}
 defaultInit = do
@@ -45,7 +55,7 @@ showRuntimeInfo = putStrLn runtimeInfo
 {- |Return platform info -}
 runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
   where
-    infos = [workers,combinedWorkers,cpuWorkers,cudaWorkers,openclWorkers,spuWorkers,async,dataflow]
+    infos = [workers,combinedWorkers,cpuWorkers,cudaWorkers,openclWorkers,spuWorkers,async,dataflow,sched]
     workers = areIs workerCount "worker"
     combinedWorkers = areIs combinedWorkerCount "combined worker"
     cpuWorkers = areIs cpuWorkerCount "cpu worker"
@@ -54,6 +64,7 @@ runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
     openclWorkers = areIs openclWorkerCount "opencl worker"
     async = "Asynchronous copy mechanism is " ++ (enabled asynchronousCopyEnabled)
     dataflow = "Dataflow mode is " ++ (enabled dataflowModeEnabled)
+    sched = "Active scheduling policy is " ++ schedPolicyName ++ " (" ++ schedPolicyDescription ++ ")"
     enabled x = if x then "enabled" else "disabled"
     areIs x s = "There " ++ case x of
       0 -> "isn't any " ++ s
