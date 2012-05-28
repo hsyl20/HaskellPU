@@ -46,7 +46,7 @@ static void transpose_cpu(void *descr[], void *_args) {
 static struct starpu_codelet transpose_codelet =
 {
   .modes = { STARPU_R, STARPU_W },
-  .where = /*STARPU_CUDA | */STARPU_CPU,
+  .where = STARPU_CUDA | STARPU_CPU,
   .cpu_funcs = {transpose_cpu, NULL},
   .cuda_funcs = {transpose_cuda, NULL},
   .nbuffers = 2,
