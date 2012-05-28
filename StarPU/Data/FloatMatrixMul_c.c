@@ -45,12 +45,33 @@ static void sgemm_cuda(void *descr[], void *_args) {
 }
 
 static void sgemm_cpu(void *descr[], void *_args) {
+  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+  float *c = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
+
+  unsigned w = STARPU_MATRIX_GET_NX(descr[2]);
+  unsigned h = STARPU_MATRIX_GET_NY(descr[2]);
+  unsigned ks = STARPU_MATRIX_GET_NX(descr[0]);
+
+  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
+  unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
+
+  unsigned i,j,k;
+  for (j=0; j<h; j++) {
+    for (i=0; i<w; i++) {
+      c[j*ldc+i] = 0.0f;
+      for (k=0; k<ks; k++) {
+        c[j*ldc+i] += a[j*lda+k] * b[k*ldb+i];
+      }
+    }
+  }
 }
 
 static struct starpu_codelet sgemm_codelet =
 {
   .modes = { STARPU_R, STARPU_R, STARPU_W },
-  .where = STARPU_CUDA,
+  .where = STARPU_CUDA | STARPU_CPU,
   .cpu_funcs = {sgemm_cpu, NULL},
   .cuda_funcs = {sgemm_cuda, NULL},
   .nbuffers = 3,
