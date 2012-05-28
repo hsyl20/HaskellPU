@@ -61,6 +61,7 @@ floatMatrixScale v m = floatMatrixUnaryOp (floatMatrixScaleTaskCreate v) m (widt
 {-# NOINLINE floatMatrixSub #-}
 {-# NOINLINE floatMatrixMul #-}
 {-# NOINLINE floatMatrixTranspose #-}
+{-# NOINLINE floatMatrixScale #-}
 
 {-# RULES
 "reduce_plus" forall x y z .  floatMatrixAdd (floatMatrixAdd x y) z = reduce floatMatrixAdd (HighVector [x,y,z])
@@ -73,6 +74,8 @@ floatMatrixScale v m = floatMatrixUnaryOp (floatMatrixScaleTaskCreate v) m (widt
 "reduce_mul_add" forall xs y .  floatMatrixMul (reduce floatMatrixMul (HighVector xs)) y = reduce floatMatrixMul (HighVector (xs ++ [y]))
 
 "transpose_transpose" forall m . floatMatrixTranspose (floatMatrixTranspose m) = m
+
+"scale_scale" forall f1 f2 m . floatMatrixScale f1 (floatMatrixScale f2 m) = floatMatrixScale (f1 * f2) m
   #-}
 
 {-------------------

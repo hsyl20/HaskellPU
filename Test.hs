@@ -109,8 +109,8 @@ simpleMatTranspose [a] = do
 simpleMatScale [a] = do
   putStrLn "A"
   printFloatMatrix a
-  putStrLn "3.0 * A"
-  printFloatMatrix $ floatMatrixScale 3.0 a
+  putStrLn "3.0 * 2.0 * A"
+  printFloatMatrix $ floatMatrixScale 3.0 $ floatMatrixScale 2.0 a
 
 rewrittenMatAdd [a,b,c,d,e,f,g,h,i,j] = do
   compute $ a + b + c + d + e + f + g + h + i + j
