@@ -24,7 +24,8 @@ main = do
   putStrLn "  3 - Simple Matrix Multiplication (displayed)"
   putStrLn "  4 - Simple Matrix Addition (displayed)"
   putStrLn "  5 - Simple Matrix Tranpose (displayed)"
-  putStrLn "  6 - Rewriting of Multiple Matrix Additions"
+  putStrLn "  6 - Simple Matrix Scale (displayed)"
+  putStrLn "  7 - Rewriting of Multiple Matrix Additions"
   putStr "> "
   hFlush stdout
   c <- getLine
@@ -40,7 +41,8 @@ main = do
     3 -> sample [identityMatrix 10, customMatrix 10 10] simpleMatMult
     4 -> sample [floatMatrixSet 10 5 2.0, floatMatrixSet 10 5 3.0] simpleMatAdd
     5 -> sample [customMatrix 15 10] simpleMatTranspose
-    6 -> sample (map (floatMatrixSet 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
+    6 -> sample [customMatrix 10 5] simpleMatScale
+    7 -> sample (map (floatMatrixSet 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -103,6 +105,12 @@ simpleMatTranspose [a] = do
   printFloatMatrix a
   putStrLn "A^T"
   printFloatMatrix $ floatMatrixTranspose a
+
+simpleMatScale [a] = do
+  putStrLn "A"
+  printFloatMatrix a
+  putStrLn "3.0 * A"
+  printFloatMatrix $ floatMatrixScale 3.0 a
 
 rewrittenMatAdd [a,b,c,d,e,f,g,h,i,j] = do
   compute $ a + b + c + d + e + f + g + h + i + j

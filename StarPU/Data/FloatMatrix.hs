@@ -17,36 +17,41 @@ foreign import ccall unsafe "floatmatrix_sub_task_create" floatMatrixSubTaskCrea
 foreign import ccall unsafe "floatmatrix_mul_task_create" floatMatrixMulTaskCreate :: Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_set_task_create" floatMatrixSetTaskCreate :: Float -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_tranpose_task_create" floatMatrixTransposeTaskCreate :: Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_scale_task_create" floatMatrixScaleTaskCreate :: Float -> Handle -> Handle -> Task
 
 {-------------------
  - Operations
  -------------------}
 
-floatMatrixOp :: (Handle -> Handle -> Handle -> Task) -> Matrix Float -> Matrix Float -> Word -> Word -> Matrix Float 
-floatMatrixOp g a b w h = floatMatrixComputeTask w h w f deps
+floatMatrixBinOp :: (Handle -> Handle -> Handle -> Task) -> Matrix Float -> Matrix Float -> Word -> Word -> Matrix Float 
+floatMatrixBinOp g a b w h = floatMatrixComputeTask w h w f deps
   where
     deps = [event a, event b]
     f = g (handle a) (handle b)
 
+floatMatrixUnaryOp :: (Handle -> Handle -> Task) -> Matrix Float -> Word -> Word -> Matrix Float
+floatMatrixUnaryOp g m w h = floatMatrixComputeTask w h w f deps
+  where
+    deps = [event m]
+    f = g (handle m)
+
 floatMatrixAdd :: Matrix Float -> Matrix Float -> Matrix Float
-floatMatrixAdd a b = floatMatrixOp floatMatrixAddTaskCreate a b (width a) (height a)
+floatMatrixAdd a b = floatMatrixBinOp floatMatrixAddTaskCreate a b (width a) (height a)
 
 floatMatrixSub :: Matrix Float -> Matrix Float -> Matrix Float
-floatMatrixSub a b = floatMatrixOp floatMatrixSubTaskCreate a b (width a) (height a)
+floatMatrixSub a b = floatMatrixBinOp floatMatrixSubTaskCreate a b (width a) (height a)
 
 floatMatrixMul :: Matrix Float -> Matrix Float -> Matrix Float
-floatMatrixMul a b = floatMatrixOp floatMatrixMulTaskCreate a b (width b) (height a)
+floatMatrixMul a b = floatMatrixBinOp floatMatrixMulTaskCreate a b (width b) (height a)
 
 floatMatrixSet :: Word -> Word -> Float -> Matrix Float
 floatMatrixSet w h v = floatMatrixComputeTask w h w (floatMatrixSetTaskCreate v) []
 
 floatMatrixTranspose :: Matrix Float -> Matrix Float
-floatMatrixTranspose m = floatMatrixComputeTask h w h f deps
-  where
-    deps = [event m]
-    h = height m
-    w = width m
-    f = floatMatrixTransposeTaskCreate (handle m)
+floatMatrixTranspose m = floatMatrixUnaryOp floatMatrixTransposeTaskCreate m (height m) (width m)
+
+floatMatrixScale :: Float -> Matrix Float -> Matrix Float
+floatMatrixScale v m = floatMatrixUnaryOp (floatMatrixScaleTaskCreate v) m (width m) (height m)
 
 {-------------------
  - Rewrite Rules
@@ -55,6 +60,7 @@ floatMatrixTranspose m = floatMatrixComputeTask h w h f deps
 {-# NOINLINE floatMatrixAdd #-}
 {-# NOINLINE floatMatrixSub #-}
 {-# NOINLINE floatMatrixMul #-}
+{-# NOINLINE floatMatrixTranspose #-}
 
 {-# RULES
 "reduce_plus" forall x y z .  floatMatrixAdd (floatMatrixAdd x y) z = reduce floatMatrixAdd (HighVector [x,y,z])
