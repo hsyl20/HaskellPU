@@ -25,5 +25,5 @@ all: $(HSC) $(EXEC) $(OBJS) $(CUOBJS)
 	
 
 clean:
-	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS)
+	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) *.trace *.data *.log *.dot *.pdf *.txt
 
