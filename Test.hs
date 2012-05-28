@@ -35,10 +35,10 @@ main = do
     1 -> sample (matrixList 1024 1024)  reduction
     2 -> do
       (n,va,ha,vb,hb) <- selectSizes
-      sample [setMatrix n n 2.0, setMatrix n n 3.0] (splitMatMult va ha vb hb)
+      sample [floatMatrixSet n n 2.0, floatMatrixSet n n 3.0] (splitMatMult va ha vb hb)
     3 -> sample [identityMatrix 10, customMatrix 10 10] simpleMatMult
-    4 -> sample [setMatrix 10 5 2.0, setMatrix 10 5 3.0] simpleMatAdd
-    5 -> sample (map (setMatrix 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
+    4 -> sample [floatMatrixSet 10 5 2.0, floatMatrixSet 10 5 3.0] simpleMatAdd
+    5 -> sample (map (floatMatrixSet 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -67,9 +67,8 @@ selectSizes = do
   return (read n,read va,read ha, read hb, read vb)
 
 identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
-setMatrix n m value = floatMatrixInit (\x y -> value) n m
 customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x + y)) 8 10
-matrixList n m = map (setMatrix n m . fromIntegral) $ range (1, 30)
+matrixList n m = map (floatMatrixSet n m . fromIntegral) $ range (1, 30)
 
 runtimeInit = do
   putStrLn "Initializing runtime system..."
@@ -79,25 +78,21 @@ runtimeInit = do
 
 reduction ms = compute $ reduce (*) (HighVector ms)
 
-splitMatMult va ha vb hb [a,b] = traverseHighMatrix compute  $ highSGEMM (split va ha a) (split vb hb b)
+splitMatMult va ha vb hb [a,b] = traverseHighMatrix compute $ highSGEMM (split va ha a) (split vb hb b)
 
 simpleMatMult [a,b] = do
   putStrLn "A"
   printFloatMatrix a
-
   putStrLn "B"
   printFloatMatrix b
-
   putStrLn "A * B"
   printFloatMatrix $ a * b
   
 simpleMatAdd [a,b] = do
   putStrLn "A"
   printFloatMatrix a
-
   putStrLn "B"
   printFloatMatrix b
-
   putStrLn "A + B"
   printFloatMatrix $ a + b
 
@@ -108,11 +103,9 @@ sample ds f = do
   putStrLn "Initializing data..."
   t1 <- getCurrentTime
   mapM compute ds
-
   putStrLn "Computing..."
   t2 <- getCurrentTime
   f ds
-
   t3 <- getCurrentTime
   putStrLn "Done."
   return (t1,t2,t3)
