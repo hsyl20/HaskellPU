@@ -43,7 +43,7 @@ static void set_cpu(void *descr[], void *arg) {
 
 static struct starpu_codelet set_codelet =
 {
-  .modes = { STARPU_R, STARPU_W },
+  .modes = { STARPU_W },
   .where = STARPU_CPU | STARPU_CUDA,
   .cpu_funcs = {set_cpu, NULL},
   .cuda_funcs = {set_cuda, NULL},
