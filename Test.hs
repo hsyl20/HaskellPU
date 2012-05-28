@@ -67,7 +67,7 @@ selectSizes = do
   return (read n,read va,read ha, read hb, read vb)
 
 identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
-customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x + y)) 8 10
+customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x*2 + y)) n m
 matrixList n m = map (floatMatrixSet n m . fromIntegral) $ range (1, 30)
 
 runtimeInit = do
