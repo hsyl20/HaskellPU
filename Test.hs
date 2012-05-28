@@ -15,7 +15,7 @@ import StarPU.Data.FloatMatrix
 
 import QR
 import HighDataTypes
-import IO
+import System.IO
 
 main = do
   putStrLn "Choose an example to run:"
