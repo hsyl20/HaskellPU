@@ -12,6 +12,7 @@ foreign import ccall unsafe "floatmatrix_add_task_create" floatMatrixAddTaskCrea
 foreign import ccall unsafe "floatmatrix_sub_task_create" floatMatrixSubTaskCreate :: Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_mul_task_create" floatMatrixMulTaskCreate :: Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_set_task_create" floatMatrixSetTaskCreate :: Float -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_tranpose_task_create" floatMatrixTransposeTaskCreate :: Handle -> Handle -> Task
 
 floatMatrixOp :: (Handle -> Handle -> Handle -> Task) -> Matrix Float -> Matrix Float -> Word -> Word -> Matrix Float 
 floatMatrixOp g a b w h = floatMatrixComputeTask w h w f deps
@@ -57,3 +58,10 @@ instance Eq (Matrix Float) where
 floatMatrixSet :: Word -> Word -> Float -> Matrix Float
 floatMatrixSet w h v = floatMatrixComputeTask w h w (floatMatrixSetTaskCreate v) []
 
+floatMatrixTranspose :: Matrix Float -> Matrix Float
+floatMatrixTranspose m = floatMatrixComputeTask h w h f deps
+  where
+    deps = [event m]
+    h = height m
+    w = width m
+    f = floatMatrixTransposeTaskCreate (handle m)
