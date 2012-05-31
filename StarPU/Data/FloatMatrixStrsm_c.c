@@ -1,8 +1,9 @@
 #include <starpu.h>
 #include <starpu_cuda.h>
-#include <cublas.h>
+#include <cublas_v2.h>
 
 #include "../Task.h"
+#include "../Platform.h"
 #include "FloatMatrix_kernels.h"
 
 static struct starpu_perfmodel strsm_model =
@@ -32,16 +33,18 @@ static void strsm_cuda(void *descr[], void *args) {
   
   struct strsm_arg * arg = (struct strsm_arg *)args;
 
-  char side = arg->side ? 'r' : 'l';
-  char uplo = arg->uplo ? 'l' : 'u';
-  char diag = arg->unit ? 'u' : 'n';
-  char trans = 't';
+  cublasSideMode_t side = arg->side ? CUBLAS_SIDE_RIGHT : CUBLAS_SIDE_LEFT;
+  cublasFillMode_t uplo = arg->uplo ? CUBLAS_FILL_MODE_LOWER : CUBLAS_FILL_MODE_UPPER;
+  cublasDiagType_t diag = arg->unit ? CUBLAS_DIAG_UNIT : CUBLAS_DIAG_NON_UNIT;
+  cublasOperation_t trans = CUBLAS_OP_T;
+
+  cublasSetStream(cublas_handle, starpu_cuda_get_local_stream());
 
   cuda_floatmatrix_duplicate(w, h, b, ldb, x, ldx);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 
   const float factor = 1.0f;
-  cublasStrsm(side, uplo, trans, diag, w, h, factor, a, lda, x, ldx);
+  cublasStrsm(cublas_handle, side, uplo, trans, diag, w, h, &factor, a, lda, x, ldx);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 
   free(arg);
