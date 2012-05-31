@@ -119,7 +119,6 @@ floatMatrixDuplicate m = do
   return $ Matrix hdl (taskEvent task) (width m) (height m) (ld m) (elemSize m)
 
 
-
 readFloatMatrix :: Matrix Float -> IO [[Float]]
 readFloatMatrix m = do
   eventWait (event m)
