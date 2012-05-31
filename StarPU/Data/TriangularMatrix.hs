@@ -11,6 +11,7 @@ import StarPU.Data.Matrix
 data TriangularMatrix a = LowerTriangularMatrix (Matrix a) Bool | UpperTriangularMatrix (Matrix a) Bool
 
 foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTaskCreate :: Int -> Int -> Int -> Handle -> Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_strmm_task_create" floatMatrixStrmmTaskCreate :: Int -> Int -> Int -> Handle -> Handle -> Handle -> Task
 
 {-------------------
  - Operations
@@ -23,9 +24,13 @@ strsm side a b = floatMatrixBinOp f m b (width b) (height b)
       UpperTriangularMatrix m unit -> (1,unit,m)
     f = floatMatrixStrsmTaskCreate uplo (if unit then 0 else 1) side
 
-instance Solver (TriangularMatrix Float) (Matrix Float) (Matrix Float) where
-  solveAXB = strsm 0
-  solveXAB = strsm 1
+strmm :: Int -> TriangularMatrix Float -> Matrix Float -> Matrix Float
+strmm side a b = floatMatrixBinOp f m b (width b) (height b)
+  where
+    (uplo, unit, m) = case a of
+      LowerTriangularMatrix m unit -> (0,unit,m)
+      UpperTriangularMatrix m unit -> (1,unit,m)
+    f = floatMatrixStrmmTaskCreate uplo (if unit then 0 else 1) side
 
 zipWithIndex :: [a] -> [(a,Int)]
 zipWithIndex l = inner l 0
@@ -38,3 +43,11 @@ printTriangularFloatMatrix (LowerTriangularMatrix m _) = do
   ms <- readFloatMatrix m
   putStrLn $ unlines $ map show $ map (\(xs,i) -> take (i+1) xs) $ zipWithIndex ms
   return ()
+
+{-------------------
+ - Instances
+ -------------------}
+instance Solver (TriangularMatrix Float) (Matrix Float) (Matrix Float) where
+  solveAXB = strsm 0
+  solveXAB = strsm 1
+
