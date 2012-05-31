@@ -19,6 +19,7 @@ import Data.List
 
 foreign import ccall "starpu_data_unregister" dataUnregister :: Handle -> IO ()
 foreign import ccall "starpu_data_unregister_no_coherency" dataUnregisterInvalid :: Handle -> IO ()
+foreign import ccall "starpu_data_unregister_lazy" dataUnregisterLazy :: Handle -> IO ()
 foreign import ccall "starpu_data_invalidate" dataInvalidate :: Handle -> IO ()
 foreign import ccall "starpu_data_release" dataRelease :: Handle -> IO ()
 
