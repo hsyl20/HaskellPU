@@ -1,8 +1,9 @@
 #include <starpu.h>
 #include <starpu_cuda.h>
-#include <cublas.h>
+#include <cublas_v2.h>
 
 #include "../Task.h"
+#include "../Platform.h"
 
 static double sgemm_cpu_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl) {
   int32_t n = starpu_matrix_get_nx(task->handles[0]);
@@ -40,7 +41,11 @@ static void sgemm_cuda(void *descr[], void *_args) {
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
   unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
 
-  cublasSgemm('n', 'n', w, h, k, 1.0f, b, ldb, a, lda, 0.0f, c, ldc);
+  cublasSetKernelStream(starpu_cuda_get_local_stream());
+
+  float alpha = 1.0f;
+  float beta = 0.0f;
+  cublasSgemm(cublas_handle,CUBLAS_OP_N, CUBLAS_OP_N, w, h, k, &alpha, b, ldb, a, lda, &beta, c, ldc);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 
