@@ -13,6 +13,7 @@ import StarPU.Task
 import StarPU.Data.Matrix
 import StarPU.Data.FloatMatrix
 import StarPU.Data.TriangularMatrix
+import StarPU.Solver
 
 import QR
 import HighDataTypes
@@ -125,7 +126,7 @@ simpleStrsm [am,b] = do
   putStrLn "B"
   printFloatMatrix b
   putStrLn "A.X = B"
-  printFloatMatrix $ strsmAXB a b
+  printFloatMatrix $ solveAXB a b
 
 sample ds f = do
   putStrLn "Initializing data..."

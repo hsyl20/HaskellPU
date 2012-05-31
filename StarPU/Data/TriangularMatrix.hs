@@ -15,13 +15,17 @@ foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTask
 {-------------------
  - Operations
  -------------------}
-strsmAXB :: TriangularMatrix Float -> Matrix Float -> Matrix Float
-strsmAXB a b = floatMatrixBinOp f m b (width b) (height b)
+strsm :: Int -> TriangularMatrix Float -> Matrix Float -> Matrix Float
+strsm side a b = floatMatrixBinOp f m b (width b) (height b)
   where
     (uplo, unit, m) = case a of
       LowerTriangularMatrix m unit -> (0,unit,m)
       UpperTriangularMatrix m unit -> (1,unit,m)
-    f = floatMatrixStrsmTaskCreate uplo (if unit then 0 else 1) 0
+    f = floatMatrixStrsmTaskCreate uplo (if unit then 0 else 1) side
+
+instance Solver (TriangularMatrix Float) (Matrix Float) (Matrix Float) where
+  solveAXB = strsm 0
+  solveXAB = strsm 1
 
 zipWithIndex :: [a] -> [(a,Int)]
 zipWithIndex l = inner l 0
