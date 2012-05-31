@@ -26,4 +26,9 @@ all: $(HSC) $(EXEC) $(OBJS) $(CUOBJS)
 
 clean:
 	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) *.trace *.data *.log *.dot *.pdf *.txt
+	@rm -rf doc
 
+doc: $(HSC)
+	@mkdir -p doc/
+	haddock -h -o doc/ --optghc=-XMultiParamTypeClasses --optghc=-XFunctionalDependencies --optghc=-XFlexibleInstances $(HSFILES)
+  
