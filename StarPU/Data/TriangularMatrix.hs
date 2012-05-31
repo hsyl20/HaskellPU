@@ -10,8 +10,8 @@ import StarPU.Data.Matrix
     matrix and must indicate if it is a unit matrix -}
 data TriangularMatrix a = LowerTriangularMatrix (Matrix a) Bool | UpperTriangularMatrix (Matrix a) Bool
 
-foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTaskCreate :: Int -> Int -> Int -> Handle -> Handle -> Handle -> Task
-foreign import ccall unsafe "floatmatrix_strmm_task_create" floatMatrixStrmmTaskCreate :: Int -> Int -> Int -> Handle -> Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTaskCreate :: Int -> Bool -> Int -> Handle -> Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_strmm_task_create" floatMatrixStrmmTaskCreate :: Int -> Bool -> Int -> Handle -> Handle -> Handle -> Task
 
 {-------------------
  - Operations
@@ -22,15 +22,17 @@ strsm side a b = floatMatrixBinOp f m b (width b) (height b)
     (uplo, unit, m) = case a of
       LowerTriangularMatrix m unit -> (0,unit,m)
       UpperTriangularMatrix m unit -> (1,unit,m)
-    f = floatMatrixStrsmTaskCreate uplo (if unit then 0 else 1) side
+    f = floatMatrixStrsmTaskCreate uplo unit side
 
 strmm :: Int -> TriangularMatrix Float -> Matrix Float -> Matrix Float
-strmm side a b = floatMatrixBinOp f m b (width b) (height b)
+strmm side a b = floatMatrixBinOp f m b w h
   where
+    w = if side == 0 then width b else width m
+    h = if side == 0 then height m else height b
     (uplo, unit, m) = case a of
       LowerTriangularMatrix m unit -> (0,unit,m)
       UpperTriangularMatrix m unit -> (1,unit,m)
-    f = floatMatrixStrmmTaskCreate uplo (if unit then 0 else 1) side
+    f = floatMatrixStrmmTaskCreate uplo unit side
 
 zipWithIndex :: [a] -> [(a,Int)]
 zipWithIndex l = inner l 0
