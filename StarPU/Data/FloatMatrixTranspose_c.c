@@ -53,7 +53,7 @@ static struct starpu_codelet transpose_codelet =
   .model = &transpose_model
 };
 
-struct starpu_task * floatmatrix_tranpose_task_create(starpu_data_handle_t a, starpu_data_handle_t b) {
+struct starpu_task * floatmatrix_transpose_task_create(starpu_data_handle_t a, starpu_data_handle_t b) {
   struct starpu_task * task = starpu_task_create_ex();
   task->cl = &transpose_codelet;
   task->handles[0] = a;

@@ -16,7 +16,7 @@ foreign import ccall unsafe "floatmatrix_add_task_create" floatMatrixAddTaskCrea
 foreign import ccall unsafe "floatmatrix_sub_task_create" floatMatrixSubTaskCreate :: Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_mul_task_create" floatMatrixMulTaskCreate :: Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_set_task_create" floatMatrixSetTaskCreate :: Float -> Handle -> Task
-foreign import ccall unsafe "floatmatrix_tranpose_task_create" floatMatrixTransposeTaskCreate :: Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_transpose_task_create" floatMatrixTransposeTaskCreate :: Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_scale_task_create" floatMatrixScaleTaskCreate :: Float -> Handle -> Handle -> Task
 
 {-------------------
