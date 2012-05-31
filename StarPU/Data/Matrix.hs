@@ -19,11 +19,19 @@ import System.Mem.Weak
 
 import HighDataTypes
 
+{-------------------
+ - Foreign imports 
+ -------------------}
+
 foreign import ccall unsafe "starpu_matrix_data_register" matrixRegister :: Ptr Handle -> Word -> WordPtr -> Word -> Word -> Word -> CSize -> IO ()
 foreign import ccall unsafe "starpu_variable_data_register" variableRegister :: Ptr Handle -> Word -> WordPtr -> CSize -> IO ()
 foreign import ccall "starpu_matrix_get_local_ptr" matrixLocalPtr :: Handle -> IO WordPtr
 foreign import ccall unsafe "sub_matrix_task_create" subMatrixTaskCreate :: Word -> Word -> Handle -> Handle -> Task
 foreign import ccall unsafe "duplicate_matrix_task_create" duplicateMatrixTaskCreate :: Handle -> Handle -> IO Task
+
+{-------------------
+ - Data and instances
+ -------------------}
 
 data Matrix a = Matrix {
   matrixHandle :: Handle,
@@ -38,12 +46,24 @@ instance Data (Matrix a) where
   handle = matrixHandle
   event = matrixEvent
 
+instance Show (Matrix a) where
+  show (Matrix handle event w h ld elemSize)  =
+    "Matrix(width = "++ show w ++
+    "; height = "++ show h ++
+    "; ld = "++ show ld ++
+    "; elemsize = "++ show elemSize ++
+    "; handle = "++ show handle ++")"
+
+{-------------------
+ - Operations
+ -------------------}
+
 -- |Register a StarPU matrix a Float stored at the given address
 floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr width height ld = alloca $ \handle -> do
   matrixRegister handle 0 nptr nld nx ny 4
   hdl <- peek handle
-  addFinalizer hdl $ putStrLn ("TODO: Unregistering (from Haskell) " ++ show hdl)
+  addFinalizer hdl $ dataUnregisterLazy(hdl)
   return hdl
   where
     nptr = fromIntegral $ ptrToWordPtr ptr
@@ -98,13 +118,6 @@ floatMatrixDuplicate m = do
   taskSubmit task
   return $ Matrix hdl (taskEvent task) (width m) (height m) (ld m) (elemSize m)
 
-instance Show (Matrix a) where
-  show (Matrix handle event w h ld elemSize)  =
-    "Matrix(width = "++ show w ++
-    "; height = "++ show h ++
-    "; ld = "++ show ld ++
-    "; elemsize = "++ show elemSize ++
-    "; handle = "++ show handle ++")"
 
 
 readFloatMatrix :: Matrix Float -> IO [[Float]]
