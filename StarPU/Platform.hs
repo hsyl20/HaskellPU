@@ -25,6 +25,7 @@ foreign import ccall unsafe "starpu_util.h starpu_helper_cublas_init" cublasInit
 
 foreign import ccall unsafe "starpu_data_set_default_sequential_consistency_flag" dataflowModeSet :: CUInt -> IO ()
 foreign import ccall unsafe "starpu_data_get_default_sequential_consistency_flag" dataflowModeGet :: CUInt
+foreign import ccall unsafe "starpu_get_prefetch_flag" prefetchState :: Int
 foreign import ccall unsafe "starpu_sched_policy_name" starpuSchedPolicyName :: CString
 foreign import ccall unsafe "starpu_sched_policy_description" starpuSchedPolicyDescription :: CString
 
@@ -36,10 +37,15 @@ asynchronousCopyEnabled = (asynchronousCopyDisabled == 0)
 {- |Indicate if StarPU's data flow mode is enabled -}
 dataflowModeEnabled = (dataflowModeGet /= 0)
 
+{- |Indicate if prefetching is enabled -}
+prefetchEnabled = (prefetchState /= 0)
+
+{- |Name of the active scheduling policy -}
 schedPolicyName = unsafePerformIO $ do
   s <- peekCString $ starpuSchedPolicyName
   return s
 
+{- |Description of the active scheduling policy -}
 schedPolicyDescription = unsafePerformIO $ do
   s <- peekCString $ starpuSchedPolicyDescription
   return s
@@ -55,7 +61,7 @@ showRuntimeInfo = putStrLn runtimeInfo
 {- |Return platform info -}
 runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
   where
-    infos = [workers,combinedWorkers,cpuWorkers,cudaWorkers,openclWorkers,spuWorkers,async,dataflow,sched]
+    infos = [workers,combinedWorkers,cpuWorkers,cudaWorkers,openclWorkers,spuWorkers,async,dataflow,sched,prefetch]
     workers = areIs workerCount "worker"
     combinedWorkers = areIs combinedWorkerCount "combined worker"
     cpuWorkers = areIs cpuWorkerCount "cpu worker"
@@ -65,6 +71,7 @@ runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
     async = "Asynchronous copy mechanism is " ++ (enabled asynchronousCopyEnabled)
     dataflow = "Dataflow mode is " ++ (enabled dataflowModeEnabled)
     sched = "Active scheduling policy is " ++ schedPolicyName ++ " (" ++ schedPolicyDescription ++ ")"
+    prefetch = "Prefetching is " ++ (enabled prefetchEnabled)
     enabled x = if x then "enabled" else "disabled"
     areIs x s = "There " ++ case x of
       0 -> "isn't any " ++ s
