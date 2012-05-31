@@ -29,6 +29,7 @@ main = do
   putStrLn "  6 - Simple Matrix Scale (displayed)"
   putStrLn "  7 - Rewriting of Multiple Matrix Additions"
   putStrLn "  8 - Triangular Matrix Solver (displayed)"
+  putStrLn "  9 - Triangular Matrix Multiplication (displayed)"
   putStr "> "
   hFlush stdout
   c <- getLine
@@ -46,7 +47,8 @@ main = do
     5 -> sample [customMatrix 15 10] simpleMatTranspose
     6 -> sample [customMatrix 10 5] simpleMatScale
     7 -> sample (map (floatMatrixSet 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
-    8 -> sample [identityMatrix 10, customMatrix 10 10] simpleStrsm
+    8 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrsm
+    9 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrmm
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -125,8 +127,17 @@ simpleStrsm [am,b] = do
   printTriangularFloatMatrix a
   putStrLn "B"
   printFloatMatrix b
-  putStrLn "A.X = B"
+  putStrLn "Solve A.X = B"
   printFloatMatrix $ solveAXB a b
+
+simpleStrmm [am,b] = do
+  putStrLn "A"
+  a <- return $ LowerTriangularMatrix am False
+  printTriangularFloatMatrix a
+  putStrLn "B"
+  printFloatMatrix b
+  putStrLn "A.B"
+  printFloatMatrix $ strmm 0 a b
 
 sample ds f = do
   putStrLn "Initializing data..."
