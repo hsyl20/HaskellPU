@@ -21,7 +21,7 @@ foreign import ccall unsafe "starpu.h starpu_spu_worker_get_count" spuWorkerCoun
 foreign import ccall unsafe "starpu.h starpu_opencl_worker_get_count" openclWorkerCount :: CUInt
 foreign import ccall unsafe "starpu.h starpu_asynchronous_copy_disabled" asynchronousCopyDisabled :: CInt
 
-foreign import ccall unsafe "starpu_util.h starpu_helper_cublas_init" cublasInit :: IO ()
+foreign import ccall unsafe "starpu_util.h starpu_cublas_init_v2" cublasInit :: IO ()
 
 foreign import ccall unsafe "starpu_data_set_default_sequential_consistency_flag" dataflowModeSet :: CUInt -> IO ()
 foreign import ccall unsafe "starpu_data_get_default_sequential_consistency_flag" dataflowModeGet :: CUInt
