@@ -21,8 +21,7 @@ qr_lu f11 f1k fk1 fkk i a = unsplit i i bs
     bkk = if (hwidth tmpkk == 0) then tmpkk else split (i-1) (i-1) $ qr_lu f11 f1k fk1 fkk i $ unsplit (i-1) (i-1) tmpkk
     bs = fromTriangularSplit b11 bk1 b1k bkk
 
-
-
+triangularSplit :: HighMatrix a -> (a, HighVector a, HighVector a, HighMatrix a)
 triangularSplit m = (m11,mk1,m1k,mkk)
   where
     m11 = head (column 1 m)

@@ -102,3 +102,4 @@ hwidth m = hheight $ transpose m
 
 cons :: a -> HighVector a -> HighVector a
 cons a (HighVector l) = HighVector (a:l)
+

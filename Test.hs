@@ -16,6 +16,7 @@ import StarPU.Data.TriangularMatrix
 import StarPU.Solver
 
 import QR
+import Cholesky
 import HighDataTypes
 import System.IO
 
@@ -30,7 +31,8 @@ main = do
   putStrLn "  7 - Rewriting of Multiple Matrix Additions"
   putStrLn "  8 - Triangular Matrix Solver (displayed)"
   putStrLn "  9 - Triangular Matrix Multiplication (displayed)"
-  putStrLn "  10 - Cholesky"
+  putStrLn "  10 - Cholesky (displayed)"
+  putStrLn "  11 - Cholesky benchmark"
   putStr "> "
   hFlush stdout
   c <- getLine
@@ -51,6 +53,14 @@ main = do
     8 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrsm
     9 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrmm
     10 -> sample [stableHilbertMatrix 16] choleskySample
+    11 -> do
+      putStr "Enter matrix size: "
+      hFlush stdout
+      n <- getLine
+      putStr "Enter block size: "
+      hFlush stdout
+      b <- getLine
+      sample [stableHilbertMatrix (read n)] (choleskyBench (read b))
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -92,7 +102,8 @@ runtimeInit = do
 
 reduction ms = compute $ reduce (*) (HighVector ms)
 
-splitMatMult va ha vb hb [a,b] = traverseHighMatrix compute $ highSGEMM (split va ha a) (split vb hb b)
+splitMatMult va ha vb hb [a,b] = do
+  traverseHighMatrix compute $ highSGEMM (split va ha a) (split vb hb b)
 
 simpleMatMult [a,b] = do
   putStrLn "A"
@@ -159,6 +170,9 @@ choleskySample [a] = do
   printFloatMatrix a
   putStrLn "Cholesky A"
   printFloatMatrix $ floatMatrixPotrf a
+
+choleskyBench bsize [a] = do
+ traverseHighMatrix compute $ cholesky bsize a
 
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
