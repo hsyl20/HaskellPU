@@ -14,7 +14,7 @@ cholesky bsize m = choleskyTiled $ split n n m
     n = div (width m) bsize
 
 choleskyTiled :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
-choleskyTiled ms = fromTriangularSplit l11 l12 l12 l22
+choleskyTiled ms = if hheight ms == 0 then ms else fromTriangularSplit l11 l12 l12 l22
   where
     l11 = floatMatrixPotrf m11
     l12 = fmap (strsm 0 (LowerTriangularMatrix m11 False)) m12
@@ -24,9 +24,9 @@ choleskyTiled ms = fromTriangularSplit l11 l12 l12 l22
 triangularSplit :: HighMatrix a -> (a, HighVector a, HighVector a, HighMatrix a)
 triangularSplit m = (m11,mk1,m1k,mkk)
   where
-    m11 = head (column 1 m)
-    mk1 = tail (column 1 m)
-    m1k = tail (row 1 m)
+    m11 = head (column 0 m)
+    mk1 = tail (column 0 m)
+    m1k = tail (row 0 m)
     mkk = dropRows 1 (dropColumns 1 m)
 
 fromTriangularSplit :: a -> HighVector a -> HighVector a -> HighMatrix a -> HighMatrix a
