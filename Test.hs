@@ -37,13 +37,14 @@ main = do
   hFlush stdout
   c <- getLine
 
-  t0 <- getCurrentTime
-  runtimeInit
-
-  (t1,t2,t3) <- case read c of
+  (t0,t1,t2,t3) <- case read c of
     1 -> sample (matrixList 1024 1024)  reduction
     2 -> do
-      (n,va,ha,vb,hb) <- selectSizes
+      n <- askNumber "Enter matrix size"
+      va <- askNumber "Enter vertical split count for A"
+      ha <- askNumber "Enter horizontal split count for A"
+      vb <- askNumber "Enter vertical split count for B"
+      hb <- askNumber "Enter horizontal split count for B"
       sample [floatMatrixSet n n 2.0, floatMatrixSet n n 3.0] (splitMatMult va ha vb hb)
     3 -> sample [identityMatrix 10, customMatrix 10 10] simpleMatMult
     4 -> sample [floatMatrixSet 10 5 2.0, floatMatrixSet 10 5 3.0] simpleMatAdd
@@ -54,13 +55,9 @@ main = do
     9 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrmm
     10 -> sample [stableHilbertMatrix 16] choleskySample
     11 -> do
-      putStr "Enter matrix size: "
-      hFlush stdout
-      n <- getLine
-      putStr "Enter block size: "
-      hFlush stdout
-      b <- getLine
-      sample [stableHilbertMatrix (read n)] (choleskyBench (read b))
+      n <- askNumber "Enter matrix size"
+      b <- askNumber "Enter block size"
+      sample [stableHilbertMatrix n] (choleskyBench b)
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -68,25 +65,13 @@ main = do
   putStrLn $ "Computing time: " ++ show (diffUTCTime t3 t2)
   putStrLn "==============================================================="
 
-
-selectSizes :: IO (Word,Word,Word,Word,Word)
-selectSizes = do
-  putStr "Enter matrix size: "
+askNumber :: String -> IO Word
+askNumber s = do
+  putStr s
+  putStr ": "
   hFlush stdout
   n <- getLine
-  putStr "Enter vertical split count for A: "
-  hFlush stdout
-  va <- getLine
-  putStr "Enter horizontal split count for A: "
-  hFlush stdout
-  ha <- getLine
-  putStr "Enter vertical split count for B: "
-  hFlush stdout
-  vb <- getLine
-  putStr "Enter horizontal split count for B: "
-  hFlush stdout
-  hb <- getLine
-  return (read n,read va,read ha, read hb, read vb)
+  return (read n)
 
 identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
 customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x*2 + y)) n m
@@ -94,11 +79,22 @@ hilbertMatrix n = floatMatrixInit (\x y -> 1.0 / ((fromIntegral x) + (fromIntegr
 stableHilbertMatrix n = hilbertMatrix n + (floatMatrixScale (fromIntegral n) (identityMatrix n))
 matrixList n m = map (floatMatrixSet n m . fromIntegral) $ range (1, 30)
 
-runtimeInit = do
+sample ds f = do
   putStrLn "Initializing runtime system..."
+  t0 <- getCurrentTime
   defaultInit
   cublasInit
   showRuntimeInfo
+  putStrLn "Initializing data..."
+  t1 <- getCurrentTime
+  mapM compute ds
+  putStrLn "Computing..."
+  t2 <- getCurrentTime
+  f ds
+  t3 <- getCurrentTime
+  putStrLn "Done."
+  return (t0,t1,t2,t3)
+
 
 reduction ms = compute $ reduce (*) (HighVector ms)
 
@@ -153,17 +149,6 @@ simpleStrmm [am,b] = do
   printFloatMatrix b
   putStrLn "A.B"
   printFloatMatrix $ strmm 0 a b
-
-sample ds f = do
-  putStrLn "Initializing data..."
-  t1 <- getCurrentTime
-  mapM compute ds
-  putStrLn "Computing..."
-  t2 <- getCurrentTime
-  f ds
-  t3 <- getCurrentTime
-  putStrLn "Done."
-  return (t1,t2,t3)
 
 choleskySample [a] = do
   putStrLn "A"
