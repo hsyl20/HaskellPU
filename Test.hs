@@ -81,7 +81,7 @@ selectSizes = do
 identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
 customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x*2 + y)) n m
 hilbertMatrix n = floatMatrixInit (\x y -> 1.0 / ((fromIntegral x) + (fromIntegral y) + 1.0)) n n
-stableHilbertMatrix n = hilbertMatrix n -- + (floatMatrixScale (fromIntegral n) (identityMatrix n))
+stableHilbertMatrix n = hilbertMatrix n + (floatMatrixScale (fromIntegral n) (identityMatrix n))
 matrixList n m = map (floatMatrixSet n m . fromIntegral) $ range (1, 30)
 
 runtimeInit = do
