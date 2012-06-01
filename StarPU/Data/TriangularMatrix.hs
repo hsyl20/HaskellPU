@@ -12,6 +12,7 @@ data TriangularMatrix a = LowerTriangularMatrix (Matrix a) Bool | UpperTriangula
 
 foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTaskCreate :: Int -> Bool -> Int -> Handle -> Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_strmm_task_create" floatMatrixStrmmTaskCreate :: Int -> Bool -> Int -> Handle -> Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_ssyrk_task_create" floatMatrixSsyrkTaskCreate :: Bool -> Bool -> Handle -> Handle -> Task
 
 {-------------------
  - Operations
@@ -33,6 +34,16 @@ strmm side a b = floatMatrixBinOp f m b w h
       LowerTriangularMatrix m unit -> (0,unit,m)
       UpperTriangularMatrix m unit -> (1,unit,m)
     f = floatMatrixStrmmTaskCreate uplo unit side
+
+ssyrk :: Bool -> TriangularMatrix Float -> Matrix Float
+ssyrk trans a = floatMatrixUnaryOp f m w h
+  where
+    w = if trans then height m else width m
+    h = if trans then width m else height m
+    (uplo, unit, m) = case a of
+      LowerTriangularMatrix m unit -> (False,unit,m)
+      UpperTriangularMatrix m unit -> (True,unit,m)
+    f = floatMatrixSsyrkTaskCreate uplo trans
 
 zipWithIndex :: [a] -> [(a,Int)]
 zipWithIndex l = inner l 0

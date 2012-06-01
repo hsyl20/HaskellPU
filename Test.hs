@@ -30,6 +30,7 @@ main = do
   putStrLn "  7 - Rewriting of Multiple Matrix Additions"
   putStrLn "  8 - Triangular Matrix Solver (displayed)"
   putStrLn "  9 - Triangular Matrix Multiplication (displayed)"
+  putStrLn "  10 - Cholesky"
   putStr "> "
   hFlush stdout
   c <- getLine
@@ -49,6 +50,7 @@ main = do
     7 -> sample (map (floatMatrixSet 10 10) [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]) rewrittenMatAdd
     8 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrsm
     9 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleStrmm
+    10 -> sample [stableHilbertMatrix 16] choleskySample
 
   putStrLn "==============================================================="
   putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
@@ -78,6 +80,8 @@ selectSizes = do
 
 identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
 customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x*2 + y)) n m
+hilbertMatrix n = floatMatrixInit (\x y -> 1.0 / ((fromIntegral x) + (fromIntegral y) + 1.0)) n n
+stableHilbertMatrix n = hilbertMatrix n -- + (floatMatrixScale (fromIntegral n) (identityMatrix n))
 matrixList n m = map (floatMatrixSet n m . fromIntegral) $ range (1, 30)
 
 runtimeInit = do
@@ -149,6 +153,12 @@ sample ds f = do
   t3 <- getCurrentTime
   putStrLn "Done."
   return (t1,t2,t3)
+
+choleskySample [a] = do
+  putStrLn "A"
+  printFloatMatrix a
+  putStrLn "Cholesky A"
+  printFloatMatrix $ floatMatrixPotrf a
 
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)

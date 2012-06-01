@@ -18,6 +18,7 @@ foreign import ccall unsafe "floatmatrix_mul_task_create" floatMatrixMulTaskCrea
 foreign import ccall unsafe "floatmatrix_set_task_create" floatMatrixSetTaskCreate :: Float -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_transpose_task_create" floatMatrixTransposeTaskCreate :: Handle -> Handle -> Task
 foreign import ccall unsafe "floatmatrix_scale_task_create" floatMatrixScaleTaskCreate :: Float -> Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_spotrf_task_create" floatMatrixSpotrfTaskCreate :: Handle -> Handle -> Task
 
 {-------------------
  - Operations
@@ -52,6 +53,9 @@ floatMatrixTranspose m = floatMatrixUnaryOp floatMatrixTransposeTaskCreate m (he
 
 floatMatrixScale :: Float -> Matrix Float -> Matrix Float
 floatMatrixScale v m = floatMatrixUnaryOp (floatMatrixScaleTaskCreate v) m (width m) (height m)
+
+floatMatrixPotrf :: Matrix Float -> Matrix Float
+floatMatrixPotrf m = floatMatrixUnaryOp floatMatrixSpotrfTaskCreate m (width m) (height m)
 
 {-------------------
  - Rewrite Rules
