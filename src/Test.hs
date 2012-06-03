@@ -37,7 +37,7 @@ main = do
   hFlush stdout
   c <- getLine
 
-  (t0,t1,t2,t3) <- case read c of
+  (initTime, dataInitTime, computeTime) <- case read c of
     1 -> sample (matrixList 1024 1024)  reduction
     2 -> do
       n <- askNumber "Enter matrix size"
@@ -57,13 +57,20 @@ main = do
     11 -> do
       n <- askNumber "Enter matrix size"
       b <- askNumber "Enter block size"
-      sample [stableHilbertMatrix n] (choleskyBench b)
+      (initTime,dataInitTime,computeTime) <- sample [stableHilbertMatrix n] (choleskyBench b)
+      putStrLn $ "Computing time: " ++ show (1000.0 * (toFloat computeTime)) ++ "ms"
+      putStrLn $ "Synthetic GFlops: " ++ show (1.0*(fromIntegral n)*(fromIntegral n)*(fromIntegral n) / 3.0 / (toFloat computeTime) / 1000000000.0)
+      return (initTime,dataInitTime,computeTime)
+      
 
   putStrLn "==============================================================="
-  putStrLn $ "Runtime system initialisation time: " ++ show (diffUTCTime t1 t0)
-  putStrLn $ "Data initialisation time: " ++ show (diffUTCTime t2 t1)
-  putStrLn $ "Computing time: " ++ show (diffUTCTime t3 t2)
+  putStrLn $ "Runtime system initialisation time: " ++ show initTime
+  putStrLn $ "Data initialisation time: " ++ show dataInitTime
+  putStrLn $ "Computing time: " ++ show computeTime
   putStrLn "==============================================================="
+
+
+toFloat n = realToFrac n :: Float
 
 askNumber :: String -> IO Word
 askNumber s = do
@@ -93,7 +100,7 @@ sample ds f = do
   f ds
   t3 <- getCurrentTime
   putStrLn "Done."
-  return (t0,t1,t2,t3)
+  return (diffUTCTime t1 t0, diffUTCTime t2 t1, diffUTCTime t3 t2)
 
 
 reduction ms = compute $ reduce (*) (HighVector ms)
