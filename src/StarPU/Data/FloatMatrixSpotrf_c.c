@@ -7,6 +7,8 @@
 #include "../Platform.h"
 #include "FloatMatrix_kernels.h"
 
+extern int spotrf_(char *uplo, int *n, float *a, int *lda, int *info);
+
 static double cpu_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl) {
 	uint32_t n = starpu_matrix_get_nx(task->handles[0]);
 
@@ -74,12 +76,29 @@ static void spotrf_cuda(void *descr[], void *args) {
 }
 
 static void spotrf_cpu(void *descr[], void *_args) {
+  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
+
+  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
+
+  unsigned i;
+  for (i = 0; i < w; i++) {
+    memcpy(&b[i*lda], &a[i*lda], h*sizeof(float));
+  }
+
+  const char uplo = 'L';
+  int info;
+  spotrf_(&uplo, (int*)&w, b, (int*)&ldb, &info);
 }
 
 static struct starpu_codelet spotrf_codelet =
 {
   .modes = { STARPU_R, STARPU_W },
-  .where = STARPU_CUDA,
+  .where = STARPU_CUDA | STARPU_CPU,
   .cpu_funcs = {spotrf_cpu, NULL},
   .cuda_funcs = {spotrf_cuda, NULL},
   .nbuffers = 2,

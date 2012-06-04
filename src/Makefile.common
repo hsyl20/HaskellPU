@@ -21,7 +21,7 @@ CUOBJS= $(CUFILES:.cu=.o)
 	gcc -Wall -c -o $@ `pkg-config libstarpu --cflags-only-I` -I$(CUBLASINC) $<
 
 all: $(HSC) $(EXEC) $(OBJS) $(CUOBJS)
-	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -L$(CUBLASLIB) -lcublas -lcudart $(EXEC) $(OBJS) $(CUOBJS)
+	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart $(EXEC) $(OBJS) $(CUOBJS)
 	
 
 clean:
@@ -33,4 +33,4 @@ doc: $(HSC)
 	haddock -h -o doc/ --optghc=-XMultiParamTypeClasses --optghc=-XFunctionalDependencies --optghc=-XFlexibleInstances $(HSFILES)
   
 tests: $(HSC) $(OBJS) $(CUOBJS)
-	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -L$(CUBLASLIB) -lcublas -lcudart Tests.hs $(OBJS) $(CUOBJS)
+	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart Tests.hs $(OBJS) $(CUOBJS)
