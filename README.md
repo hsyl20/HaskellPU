@@ -5,6 +5,7 @@ HaskellPU
   * StarPU
   * CuBlas
   * BLAS
+  * Lapack
   * ghc
   * hsc2hs
   * gcc
