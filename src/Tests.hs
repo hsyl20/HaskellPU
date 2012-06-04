@@ -10,8 +10,8 @@ squareMatrix :: Gen (Matrix Float)
 squareMatrix = do
   s <- choose (1,256)
   values <- vector s
-  w <- return $ round (sqrt (fromIntegral s))
-  return $ floatMatrixInit (\x y -> values !! fromIntegral ((x+y*w))) (fromIntegral (w-1)) (fromIntegral (w-1))
+  w <- return $ floor (sqrt (fromIntegral s))
+  return $ floatMatrixInit (\x y -> values !! fromIntegral ((x+y*w))) (fromIntegral w) (fromIntegral w)
 
 instance Arbitrary (Matrix Float) where
   arbitrary = squareMatrix
