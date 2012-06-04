@@ -28,16 +28,14 @@ static void duplicate_matrix_cpu(void *descr[], void *args) {
   float *src = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *dst = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
   unsigned l0 = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned w1 = STARPU_MATRIX_GET_NY(descr[1]);
-  unsigned h1 = STARPU_MATRIX_GET_NX(descr[1]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[1]);
   unsigned l1 = STARPU_MATRIX_GET_LD(descr[1]);
 
   unsigned i,j;
 
-  for (i = 0; i < h1; i++) {
-    for (j = 0; j < w1; j++) {
-      dst[i*l1 + j] = src[i*l0 + j];
-    }
+  for (i = 0; i < w; i++) {
+    memcpy(&dst[i*l1], &src[i*l0], h*sizeof(float));
   }
 }
 
