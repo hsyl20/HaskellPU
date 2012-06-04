@@ -25,7 +25,7 @@ all: $(HSC) $(EXEC) $(OBJS) $(CUOBJS)
 	
 
 clean:
-	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) $(CUOBJS) *.trace *.data *.log *.dot *.pdf *.txt
+	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test Tests $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) $(CUOBJS) *.trace *.data *.log *.dot *.pdf *.txt
 	@rm -rf doc
 
 doc: $(HSC)
@@ -34,3 +34,4 @@ doc: $(HSC)
   
 tests: $(HSC) $(OBJS) $(CUOBJS)
 	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart Tests.hs $(OBJS) $(CUOBJS)
+	./Tests
