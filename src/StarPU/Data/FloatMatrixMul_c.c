@@ -5,6 +5,12 @@
 #include "../Task.h"
 #include "../Platform.h"
 
+extern void sgemm_ (const char *transa, const char *transb, const int *m,
+                   const int *n, const int *k, const float *alpha, 
+                   const float *A, const int *lda, const float *B, 
+                   const int *ldb, const float *beta, float *C, 
+                   const int *ldc);
+
 static double sgemm_cpu_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl) {
   int32_t n = starpu_matrix_get_nx(task->handles[0]);
   double cost = (((double)(n)*n*n)/50.0f/10.75/8.0760);
@@ -49,7 +55,7 @@ static void sgemm_cuda(void *descr[], void *_args) {
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 
-static void sgemm_cpu(void *descr[], void *_args) {
+static void sgemm_cpu2(void *descr[], void *_args) {
   float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
   float *c = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
@@ -71,6 +77,24 @@ static void sgemm_cpu(void *descr[], void *_args) {
       }
     }
   }
+}
+
+static void sgemm_cpu(void *descr[], void *_args) {
+  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+  float *c = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
+
+  unsigned w = STARPU_MATRIX_GET_NX(descr[2]);
+  unsigned h = STARPU_MATRIX_GET_NY(descr[2]);
+  unsigned ks = STARPU_MATRIX_GET_NX(descr[0]);
+
+  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
+  unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
+
+  float alpha = 1.0f;
+  float beta = 0.0f;
+	sgemm_("N", "N", (int*)&h, (int*)&w, (int*)&ks, &alpha, a, (int*)&lda, b, (int*)&ldb, &beta, c, (int*)&ldc);	
 }
 
 static struct starpu_codelet sgemm_codelet =
