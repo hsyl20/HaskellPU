@@ -14,20 +14,21 @@ static struct starpu_perfmodel set_model =
 static void set_cuda(void *descr[], void *arg) {
   float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
   float value = *(float*)arg;
 
   cuda_floatmatrix_set(w, h, value, a, lda);
-  free(arg);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
+
+  free(arg);
 }
 
 static void set_cpu(void *descr[], void *arg) {
   float *a 	= (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
   float value = *(float*)arg;
   unsigned i,j;

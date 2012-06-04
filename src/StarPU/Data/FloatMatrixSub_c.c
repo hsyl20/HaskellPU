@@ -16,8 +16,8 @@ static void matsub_cuda(void *descr[], void *_args) {
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
   float *c = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[1]);
 
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
@@ -32,8 +32,8 @@ static void matsub_cpu(void *descr[], void *_args) {
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
   float *c = (float *)STARPU_MATRIX_GET_PTR(descr[2]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[1]);
 
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);

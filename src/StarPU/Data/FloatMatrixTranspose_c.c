@@ -15,8 +15,8 @@ static void transpose_cuda(void *descr[], void *_args) {
   float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
@@ -29,8 +29,8 @@ static void transpose_cpu(void *descr[], void *_args) {
   float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);

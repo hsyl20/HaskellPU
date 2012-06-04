@@ -15,8 +15,8 @@ static void scale_cuda(void *descr[], void *arg) {
   float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
@@ -32,8 +32,8 @@ static void scale_cpu(void *descr[], void *arg) {
   float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[0]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);

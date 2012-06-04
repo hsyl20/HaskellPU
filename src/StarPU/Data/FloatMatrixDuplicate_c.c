@@ -17,8 +17,8 @@ static void duplicate_matrix_cuda(void *descr[], void *_args) {
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
 
-  unsigned w = STARPU_MATRIX_GET_NX(descr[1]);
-  unsigned h = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned w = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned h = STARPU_MATRIX_GET_NX(descr[1]);
 
   cuda_floatmatrix_duplicate(w,h,a,lda,b,ldb);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
@@ -28,8 +28,8 @@ static void duplicate_matrix_cpu(void *descr[], void *args) {
   float *src = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
   float *dst = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
   unsigned l0 = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned w1 = STARPU_MATRIX_GET_NX(descr[1]);
-  unsigned h1 = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned w1 = STARPU_MATRIX_GET_NY(descr[1]);
+  unsigned h1 = STARPU_MATRIX_GET_NX(descr[1]);
   unsigned l1 = STARPU_MATRIX_GET_LD(descr[1]);
 
   unsigned i,j;

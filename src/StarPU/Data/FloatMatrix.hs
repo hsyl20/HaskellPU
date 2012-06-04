@@ -143,8 +143,8 @@ floatMatrixRegister ptr width height ld = alloca $ \handle -> do
   where
     nptr = fromIntegral $ ptrToWordPtr ptr
     nld = fromIntegral ld
-    nx = fromIntegral width
-    ny = fromIntegral height
+    nx = fromIntegral height
+    ny = fromIntegral width
 
 -- |Initialize a new matrix of Float using the given function
 floatMatrixMayInit :: Maybe (Word -> Word -> Float) -> Word -> Word -> Matrix Float
