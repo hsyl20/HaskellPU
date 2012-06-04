@@ -7,8 +7,25 @@
 #include "../Platform.h"
 #include "FloatMatrix_kernels.h"
 
+static double cpu_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl) {
+	uint32_t n = starpu_matrix_get_nx(task->handles[0]);
+
+	return (((double)(n)*n*n)/1000.0f*0.894/0.79176);
+}
+
+static double cuda_cost(struct starpu_task *task, enum starpu_perf_archtype arch, unsigned nimpl) {
+	uint32_t n = starpu_matrix_get_nx(task->handles[0]);
+
+	return (((double)(n)*n*n)/50.0f/10.75/5.088633/0.9883);
+}
+
 static struct starpu_perfmodel spotrf_model =
 {
+  .per_arch =
+  {
+    [STARPU_CPU_DEFAULT][0] = { .cost_function = cpu_cost },
+    [STARPU_CUDA_DEFAULT][0] = { .cost_function = cuda_cost }
+  },
   .type = STARPU_HISTORY_BASED,
   .symbol = "FLOATMATRIX_SPOTRF"
 };
@@ -31,7 +48,7 @@ static void spotrf_cuda(void *descr[], void *args) {
   float *lambda11;
   cudaHostAlloc((void **)&lambda11, sizeof(float), 0);
 
-  int z;
+  unsigned z;
   for (z = 0; z < w; z++) {
     cudaMemcpyAsync(lambda11, &b[z+z*ldb], sizeof(float), cudaMemcpyDeviceToHost, starpu_cuda_get_local_stream());
     cudaStreamSynchronize(starpu_cuda_get_local_stream());
@@ -42,13 +59,13 @@ static void spotrf_cuda(void *descr[], void *args) {
 
     cudaMemcpyAsync(&b[z+z*ldb], lambda11, sizeof(float), cudaMemcpyHostToDevice, starpu_cuda_get_local_stream());
 
-    float v = 1.0f/(*lambda11);
-    cublasSscal(cublas_handle, w - z - 1, &v, &b[(z+1)*ldb +z], ldb);
+    float alpha = 1.0f/(*lambda11);
+    cublasSscal(cublas_handle, w - z - 1, &alpha, &b[(z+1)+z*ldb], 1);
 
-    float alpha = -1.0f;
-    cublasSsyr(cublas_handle, CUBLAS_FILL_MODE_UPPER, w - z - 1, &alpha,
-		    &b[(z+1)+ z*ldb], 1,
-		    &b[(z+1)+(z+1)*ldb], ldb);
+    float beta = -1.0f;
+    cublasSsyr(cublas_handle, CUBLAS_FILL_MODE_UPPER, w - z - 1, &beta,
+        &b[(z+1)+z*ldb], 1,
+        &b[(z+1)+(z+1)*ldb], ldb);
   }
 
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
