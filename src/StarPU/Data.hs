@@ -44,9 +44,3 @@ unregisterInvalid a = withForeignPtr (handle a) $ dataUnregisterInvalid
 
 invalidate :: Data a => a -> IO ()
 invalidate a = withForeignPtr (handle a) $ dataInvalidate
-
-release :: Data a => a -> IO ()
-release a = withForeignPtr (handle a) $ dataRelease
-
-acquire :: Data a => AccessMode -> a -> IO Int
-acquire mode a = withForeignPtr (handle a) $ \hdl -> dataAcquire hdl mode

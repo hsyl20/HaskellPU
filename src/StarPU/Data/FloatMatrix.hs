@@ -190,10 +190,10 @@ withAcquiredData :: Data a => a -> (WordPtr -> IO b) -> IO b
 withAcquiredData m f = do
   withForeignPtr (handle m) $ \hdl -> do
     eventWait (event m)
-    acquire readOnly m
+    dataAcquire hdl readOnly
     ptr <- matrixLocalPtr hdl
     res <- f ptr
-    release m
+    dataRelease hdl
     return res
 
 readFloatMatrix :: Matrix Float -> IO [[Float]]
