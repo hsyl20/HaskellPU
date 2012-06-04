@@ -41,11 +41,11 @@ static void sgemm_cuda(void *descr[], void *_args) {
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
   unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
 
-  cublasSetKernelStream(starpu_cuda_get_local_stream());
+  cublasSetStream(cublas_handle, starpu_cuda_get_local_stream());
 
   float alpha = 1.0f;
   float beta = 0.0f;
-  cublasSgemm(cublas_handle,CUBLAS_OP_N, CUBLAS_OP_N, h, w, k, &alpha, a, lda, b, ldb, &beta, c, ldc);
+  cublasSgemm(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, h, w, k, &alpha, a, lda, b, ldb, &beta, c, ldc);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 
