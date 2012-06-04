@@ -45,7 +45,7 @@ static void sgemm_cuda(void *descr[], void *_args) {
 
   float alpha = 1.0f;
   float beta = 0.0f;
-  cublasSgemm(cublas_handle,CUBLAS_OP_N, CUBLAS_OP_N, w, h, k, &alpha, b, ldb, a, lda, &beta, c, ldc);
+  cublasSgemm(cublas_handle,CUBLAS_OP_N, CUBLAS_OP_N, h, w, k, &alpha, a, lda, b, ldb, &beta, c, ldc);
   cudaStreamSynchronize(starpu_cuda_get_local_stream());
 }
 
@@ -63,11 +63,11 @@ static void sgemm_cpu(void *descr[], void *_args) {
   unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
 
   unsigned i,j,k;
-  for (j=0; j<h; j++) {
-    for (i=0; i<w; i++) {
+  for (j=0; j<w; j++) {
+    for (i=0; i<h; i++) {
       c[j*ldc+i] = 0.0f;
       for (k=0; k<ks; k++) {
-        c[j*ldc+i] += a[j*lda+k] * b[k*ldb+i];
+        c[j*ldc+i] += a[k*lda+i] * b[k + j*ldb];
       }
     }
   }

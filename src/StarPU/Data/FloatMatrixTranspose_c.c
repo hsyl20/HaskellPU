@@ -36,8 +36,8 @@ static void transpose_cpu(void *descr[], void *_args) {
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
 
   unsigned i,j;
-  for (j=0; j<h; j++) {
-    for (i=0; i<w; i++) {
+  for (j=0; j<w; j++) {
+    for (i=0; i<h; i++) {
       b[i*ldb+j] = a[j*lda+i];
     }
   }

@@ -40,8 +40,8 @@ static void matadd_cpu(void *descr[], void *_args) {
   unsigned ldc = STARPU_MATRIX_GET_LD(descr[2]);
 
   unsigned i,j;
-  for (j=0; j<h; j++) {
-    for (i=0; i<w; i++) {
+  for (j=0; j<w; j++) {
+    for (i=0; i<h; i++) {
       c[j*ldc+i] = a[j*lda+i] + b[j*ldb+i];
     }
   }

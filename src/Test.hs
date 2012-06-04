@@ -7,7 +7,6 @@ import Data.Foldable
 import Data.Time.Clock
 
 import StarPU.Platform
-import StarPU.DataTypes
 import StarPU.Task
 
 import StarPU.Data.Matrix

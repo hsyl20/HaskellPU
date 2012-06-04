@@ -10,9 +10,9 @@ import StarPU.Data.Matrix
     matrix and must indicate if it is a unit matrix -}
 data TriangularMatrix a = LowerTriangularMatrix (Matrix a) Bool | UpperTriangularMatrix (Matrix a) Bool
 
-foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTaskCreate :: Int -> Bool -> Int -> Handle -> Handle -> Handle -> Task
-foreign import ccall unsafe "floatmatrix_strmm_task_create" floatMatrixStrmmTaskCreate :: Int -> Bool -> Int -> Handle -> Handle -> Handle -> Task
-foreign import ccall unsafe "floatmatrix_ssyrk_task_create" floatMatrixSsyrkTaskCreate :: Bool -> Bool -> Handle -> Handle -> Task
+foreign import ccall unsafe "floatmatrix_strsm_task_create" floatMatrixStrsmTaskCreate :: Int -> Bool -> Int -> UnsafeHandle -> UnsafeHandle -> UnsafeHandle -> IO Task
+foreign import ccall unsafe "floatmatrix_strmm_task_create" floatMatrixStrmmTaskCreate :: Int -> Bool -> Int -> UnsafeHandle -> UnsafeHandle -> UnsafeHandle -> IO Task
+foreign import ccall unsafe "floatmatrix_ssyrk_task_create" floatMatrixSsyrkTaskCreate :: Bool -> Bool -> UnsafeHandle -> UnsafeHandle -> IO Task
 
 {-------------------
  - Operations

@@ -51,7 +51,7 @@ static struct starpu_codelet duplicate_matrix_codelet =
   .model = &duplicate_matrix_model
 };
 
-struct starpu_task * duplicate_matrix_task_create(starpu_data_handle_t s, starpu_data_handle_t d) {
+struct starpu_task * floatmatrix_duplicate_task_create(starpu_data_handle_t s, starpu_data_handle_t d) {
   struct starpu_task * task = starpu_task_create_ex();
   task->cl = &duplicate_matrix_codelet;
   task->handles[0] = s;

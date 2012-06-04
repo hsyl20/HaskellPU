@@ -32,3 +32,5 @@ doc: $(HSC)
 	@mkdir -p doc/
 	haddock -h -o doc/ --optghc=-XMultiParamTypeClasses --optghc=-XFunctionalDependencies --optghc=-XFlexibleInstances $(HSFILES)
   
+tests: $(HSC) $(OBJS) $(CUOBJS)
+	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -L$(CUBLASLIB) -lcublas -lcudart Tests.hs $(OBJS) $(CUOBJS)

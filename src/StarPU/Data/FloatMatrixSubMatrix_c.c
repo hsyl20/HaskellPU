@@ -62,7 +62,7 @@ static struct starpu_codelet sub_matrix_codelet =
   .model = &sub_matrix_model
 };
 
-struct starpu_task * sub_matrix_task_create(unsigned x, unsigned y, starpu_data_handle_t s, starpu_data_handle_t d) {
+struct starpu_task * floatmatrix_submatrix_task_create(unsigned x, unsigned y, starpu_data_handle_t s, starpu_data_handle_t d) {
   struct starpu_task * task = starpu_task_create_ex();
   task->cl = &sub_matrix_codelet;
   task->handles[0] = s;

@@ -32,8 +32,8 @@ static void set_cpu(void *descr[], void *arg) {
   float value = *(float*)arg;
   unsigned i,j;
 
-  for (i = 0; i < h; i++) {
-    for (j = 0; j < w; j++) {
+  for (i = 0; i < w; i++) {
+    for (j = 0; j < h; j++) {
       a[i*lda + j] = value;
     }
   }
