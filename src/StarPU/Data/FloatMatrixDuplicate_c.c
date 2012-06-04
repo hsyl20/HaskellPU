@@ -32,7 +32,7 @@ static void duplicate_matrix_cpu(void *descr[], void *args) {
   unsigned h = STARPU_MATRIX_GET_NX(descr[1]);
   unsigned l1 = STARPU_MATRIX_GET_LD(descr[1]);
 
-  unsigned i,j;
+  unsigned i;
 
   for (i = 0; i < w; i++) {
     memcpy(&dst[i*l1], &src[i*l0], h*sizeof(float));
