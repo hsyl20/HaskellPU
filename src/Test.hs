@@ -46,7 +46,7 @@ main = do
       vb <- askNumber "Enter vertical split count for B"
       hb <- askNumber "Enter horizontal split count for B"
       sample [floatMatrixSet n n 2.0, floatMatrixSet n n 3.0] (splitMatMult va ha vb hb)
-    3 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 10 10] simpleMatMult
+    3 -> sample [floatMatrixScale 2.0 (identityMatrix 10), customMatrix 5 10] simpleMatMult
     4 -> sample [floatMatrixSet 10 5 2.0, floatMatrixSet 10 5 3.0] simpleMatAdd
     5 -> sample [customMatrix 15 10] simpleMatTranspose
     6 -> sample [customMatrix 10 5] simpleMatScale
