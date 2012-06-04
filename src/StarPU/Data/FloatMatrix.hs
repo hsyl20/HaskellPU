@@ -154,7 +154,7 @@ floatMatrixMayInit f width height = unsafePerformIO $ do
     Nothing -> return ()
     Just g -> pokeArray (castPtr ptr) cells
       where
-        cells = concat $ map (\col -> map (\row -> g row col) rows) cols
+        cells = concat $ map (\col -> map (\row -> g col row) rows) cols
         rows = range (0,height-1)
         cols = range (0,width-1)
   handle <- floatMatrixRegister ptr width height height
