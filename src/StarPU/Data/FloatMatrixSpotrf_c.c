@@ -1,10 +1,10 @@
 #include <starpu.h>
 #include <starpu_cuda.h>
-#include <stdlib.h>
 #include <cublas_v2.h>
 
 #include "../Task.h"
 #include "../Platform.h"
+#include "Common.h"
 #include "FloatMatrix_kernels.h"
 
 extern int spotrf_(char *uplo, int *n, float *a, int *lda, int *info);
@@ -85,12 +85,9 @@ static void spotrf_cpu(void *descr[], void *_args) {
   unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
   unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
 
-  unsigned i;
-  for (i = 0; i < w; i++) {
-    memcpy(&b[i*lda], &a[i*lda], h*sizeof(float));
-  }
+  floatmatrix_duplicate(a,lda,b,ldb,w,h);
 
-  const char uplo = 'L';
+  char uplo = 'L';
   int info;
   spotrf_(&uplo, (int*)&w, b, (int*)&ldb, &info);
 }

@@ -5,6 +5,20 @@
 #include "../Task.h"
 #include "FloatMatrix_kernels.h"
 
+void floatmatrix_duplicate(float *a, unsigned lda, float * b, unsigned ldb, unsigned w, unsigned h) {
+
+  if (lda == ldb) {
+      memcpy(b, a, lda*w*sizeof(float));
+  }
+  else {
+    unsigned i;
+    for (i = 0; i < w; i++) {
+      memcpy(&b[i*ldb], &a[i*lda], h*sizeof(float));
+    }
+  }
+
+}
+
 static struct starpu_perfmodel duplicate_matrix_model =
 {
   .type = STARPU_HISTORY_BASED,

@@ -4,6 +4,7 @@
 
 #include "../Task.h"
 #include "../Platform.h"
+#include "Common.h"
 #include "FloatMatrix_kernels.h"
 
 extern void strsm_ (const char *side, const char *uplo, const char *transa, 
@@ -74,10 +75,7 @@ static void strsm_cpu(void *descr[], void *args) {
   const char diag = arg->unit ? 'U' : 'N';
   const char trans = 'N';
 
-  unsigned i;
-  for (i = 0; i < w; i++) {
-    memcpy(&x[i*ldx], &b[i*ldb], h*sizeof(float));
-  }
+  floatmatrix_duplicate(b,ldb,x,ldx,w,h);
 
   const float factor = 1.0f;
   strsm_(&side, &uplo, &trans, &diag, (int*)&w, (int*)&h, &factor, a, (int*)&lda, x, (int*)&ldx);
