@@ -100,8 +100,7 @@ floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr width height ld = alloca $ \handle -> do
   matrixRegister handle 0 nptr nld nx ny 4
   hdl <- peek handle
-  --newForeignPtr p_dataUnregisterLazy hdl
-  newForeignPtr_ hdl
+  newForeignPtr p_dataUnregisterLazy hdl
   where
     nptr = fromIntegral $ ptrToWordPtr ptr
     nld = fromIntegral ld
