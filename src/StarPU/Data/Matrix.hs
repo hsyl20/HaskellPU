@@ -16,8 +16,6 @@ import Foreign.Storable
 import System.IO.Unsafe
 import System.Mem.Weak
 
-import HighDataTypes
-
 {-------------------
  - Foreign imports 
  -------------------}

@@ -78,6 +78,3 @@ runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
       1 -> "is a single " ++ s
       _ -> "are " ++ show x ++ " " ++ s ++ "s"
 
-{- |Compute the given parameter and wait for each task to complete -}
-compute :: Data a => a -> IO ()
-compute a = a `seq` eventWait (event a)

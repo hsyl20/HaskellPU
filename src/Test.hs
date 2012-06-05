@@ -8,6 +8,7 @@ import Data.Time.Clock
 
 import StarPU.Platform
 import StarPU.Task
+import StarPU.Data
 
 import StarPU.Data.Matrix
 import StarPU.Data.FloatMatrix
@@ -95,6 +96,7 @@ sample ds f = do
   putStrLn "Initializing data..."
   t1 <- getCurrentTime
   mapM compute ds
+  mapM waitData ds
   putStrLn "Computing..."
   t2 <- getCurrentTime
   f ds
@@ -103,10 +105,10 @@ sample ds f = do
   return (diffUTCTime t1 t0, diffUTCTime t2 t1, diffUTCTime t3 t2)
 
 
-reduction ms = compute $ reduce (*) (HighVector ms)
+reduction ms = computeSync $ reduce (*) (HighVector ms)
 
 splitMatMult va ha vb hb [a,b] = do
-  traverseHighMatrix compute $ highSGEMM (split va ha a) (split vb hb b)
+  computeHighMatrixSync $ highSGEMM (split va ha a) (split vb hb b)
 
 simpleMatMult [a,b] = do
   putStrLn "A"
@@ -137,7 +139,7 @@ simpleMatScale [a] = do
   printFloatMatrix $ floatMatrixScale 3.0 $ floatMatrixScale 2.0 a
 
 rewrittenMatAdd [a,b,c,d,e,f,g,h,i,j] = do
-  compute $ a + b + c + d + e + f + g + h + i + j
+  computeSync $ a + b + c + d + e + f + g + h + i + j
 
 simpleStrsm [am,b] = do
   putStrLn "A"
@@ -164,7 +166,7 @@ choleskySample [a] = do
   printFloatMatrix $ floatMatrixPotrf a
 
 choleskyBench bsize [a] = do
- traverseHighMatrix compute $ cholesky bsize a
+ computeHighMatrixSync (cholesky bsize a)
 
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)

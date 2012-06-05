@@ -36,6 +36,8 @@ foreign import ccall "starpu_data_release" dataRelease :: UnsafeHandle -> IO ()
 foreign import ccall "starpu_data_acquire" dataAcquire :: UnsafeHandle -> AccessMode -> IO Int
 foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())
 
+foreign import ccall "force_compute" dataForceCompute :: UnsafeHandle -> IO ()
+
 unregister :: Data a => a -> IO ()
 unregister a = withForeignPtr (handle a) $ dataUnregister
 
@@ -44,3 +46,18 @@ unregisterInvalid a = withForeignPtr (handle a) $ dataUnregisterInvalid
 
 invalidate :: Data a => a -> IO ()
 invalidate a = withForeignPtr (handle a) $ dataInvalidate
+
+{- |Force asynchronous computation of the given parameter -}
+compute :: Data a => a -> IO ()
+compute a = withForeignPtr (handle a) $ dataForceCompute
+
+{- |Force synchronous computation of the given parameter -}
+computeSync :: Data a => a -> IO ()
+computeSync a = do
+  compute a
+  waitData a
+
+waitData :: Data a => a -> IO ()
+waitData a = eventWait (event a)
+
+

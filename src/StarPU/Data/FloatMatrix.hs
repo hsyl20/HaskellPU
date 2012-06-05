@@ -20,7 +20,6 @@ import StarPU.Structures
 import StarPU.Platform
 import StarPU.AccessMode
 import StarPU.Event
-import HighDataTypes
 
 {-------------------
  - Foreign imports 
@@ -92,47 +91,10 @@ floatMatrixDuplicate m = do
   return $ Matrix hdl evt (width m) (height m) (ld m) (elemSize m)
 
 
-
-printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
-printHighMatrix = traverseHighMatrix printFloatMatrix
-
-split :: Word -> Word -> Matrix Float -> HighMatrix (Matrix Float)
-split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
-  where
-    rows = range (0,y-1)
-    cols = range (0,x-1)
-    w = width m
-    h = height m
-    wp = div w x
-    wr = w - (x*wp)
-    hp = div h y
-    hr = h - (y*hp)
-    f c r = subMatrix (c*wp) (r*hp) myW myH m
-      where
-        myW = if c /= x-1 then wp else (wp+wr)
-        myH = if r /= y-1 then hp else (hp+hr)
-
-traverseHighMatrix :: (a -> IO ()) -> HighMatrix a -> IO ()
-traverseHighMatrix g m = f 0 0
-  where
-    w = hwidth m
-    h = hheight m
-    HighMatrix r = m
-    f x y = do
-      if x >= w || y >= h
-        then return ()
-        else do g (r !! y !! x)
-                if x == (w-1)
-                  then do f 0 (y+1)
-                  else do f (x+1) y
-
 waitAndShow m = do
   eventWait (event m)
   putStrLn (show m)
   
-showHighMatrix :: HighMatrix (Matrix Float) -> IO ()
-showHighMatrix = traverseHighMatrix waitAndShow
-
 -- |Register a StarPU matrix a Float stored at the given address
 floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr width height ld = alloca $ \handle -> do
@@ -214,30 +176,11 @@ printFloatMatrix m = do
   return ()
 
 
-{-------------------
- - Rewrite Rules
- -------------------}
-
 {-# NOINLINE floatMatrixAdd #-}
 {-# NOINLINE floatMatrixSub #-}
 {-# NOINLINE floatMatrixMul #-}
 {-# NOINLINE floatMatrixTranspose #-}
 {-# NOINLINE floatMatrixScale #-}
-
-{-# RULES
-"reduce_plus" forall x y z .  floatMatrixAdd (floatMatrixAdd x y) z = reduce floatMatrixAdd (HighVector [x,y,z])
-"reduce_plus_add" forall xs y .  floatMatrixAdd (reduce floatMatrixAdd (HighVector xs)) y = reduce floatMatrixAdd (HighVector (xs ++ [y]))
-
-"reduce_sub" forall x y z .  floatMatrixSub (floatMatrixSub x y) z = reduce floatMatrixSub (HighVector [x,y,z])
-"reduce_sub_add" forall xs y .  floatMatrixSub (reduce floatMatrixSub (HighVector xs)) y = reduce floatMatrixSub (HighVector (xs ++ [y]))
-
-"reduce_mul" forall x y z .  floatMatrixMul (floatMatrixMul x y) z = reduce floatMatrixMul (HighVector [x,y,z])
-"reduce_mul_add" forall xs y .  floatMatrixMul (reduce floatMatrixMul (HighVector xs)) y = reduce floatMatrixMul (HighVector (xs ++ [y]))
-
-"transpose_transpose" forall m . floatMatrixTranspose (floatMatrixTranspose m) = m
-
-"scale_scale" forall f1 f2 m . floatMatrixScale f1 (floatMatrixScale f2 m) = floatMatrixScale (f1 * f2) m
-  #-}
 
 {-------------------
  - Instances

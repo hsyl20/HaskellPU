@@ -3,8 +3,13 @@ module HighDataTypes where
 import Prelude hiding (foldr)
 import qualified Data.List
 import Data.Traversable
+import Data.Word
+import Data.Ix
 import Control.Applicative
 import Data.Foldable
+import StarPU.Data
+import StarPU.Data.FloatMatrix
+import StarPU.Data.Matrix
 
 data HighVector a = HighVector [a] deriving Show
 data HighMatrix a = HighMatrix [[a]] deriving Show
@@ -102,4 +107,76 @@ hwidth m = hheight $ transpose m
 
 cons :: a -> HighVector a -> HighVector a
 cons a (HighVector l) = HighVector (a:l)
+
+{- Force asynchronous computation of each cell of the high matrix -}
+computeHighMatrix :: Data a => HighMatrix a -> IO ()
+computeHighMatrix a = traverseHighMatrix compute a
+
+{- Wait for each cell of the high matrix to be computed -}
+waitHighMatrix :: Data a => HighMatrix a -> IO ()
+waitHighMatrix a = traverseHighMatrix waitData a
+
+{- Compute in parallel each cell of the high matrix and wait for the result -}
+computeHighMatrixSync :: Data a => HighMatrix a -> IO ()
+computeHighMatrixSync a = do
+  computeHighMatrix a
+  waitHighMatrix a
+
+
+printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
+printHighMatrix m = do
+  computeHighMatrixSync m
+  traverseHighMatrix printFloatMatrix m
+
+split :: Word -> Word -> Matrix Float -> HighMatrix (Matrix Float)
+split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
+  where
+    rows = range (0,y-1)
+    cols = range (0,x-1)
+    w = width m
+    h = height m
+    wp = div w x
+    wr = w - (x*wp)
+    hp = div h y
+    hr = h - (y*hp)
+    f c r = subMatrix (c*wp) (r*hp) myW myH m
+      where
+        myW = if c /= x-1 then wp else (wp+wr)
+        myH = if r /= y-1 then hp else (hp+hr)
+
+traverseHighMatrix :: (a -> IO ()) -> HighMatrix a -> IO ()
+traverseHighMatrix g m = f 0 0
+  where
+    w = hwidth m
+    h = hheight m
+    HighMatrix r = m
+    f x y = do
+      if x >= w || y >= h
+        then return ()
+        else do g (r !! y !! x)
+                if x == (w-1)
+                  then do f 0 (y+1)
+                  else do f (x+1) y
+
+showHighMatrix :: HighMatrix (Matrix Float) -> IO ()
+showHighMatrix = traverseHighMatrix waitAndShow
+
+{-------------------
+ - Rewrite Rules
+ -------------------}
+
+{-# RULES
+"reduce_plus" forall x y z .  floatMatrixAdd (floatMatrixAdd x y) z = reduce floatMatrixAdd (HighVector [x,y,z])
+"reduce_plus_add" forall xs y .  floatMatrixAdd (reduce floatMatrixAdd (HighVector xs)) y = reduce floatMatrixAdd (HighVector (xs ++ [y]))
+
+"reduce_sub" forall x y z .  floatMatrixSub (floatMatrixSub x y) z = reduce floatMatrixSub (HighVector [x,y,z])
+"reduce_sub_add" forall xs y .  floatMatrixSub (reduce floatMatrixSub (HighVector xs)) y = reduce floatMatrixSub (HighVector (xs ++ [y]))
+
+"reduce_mul" forall x y z .  floatMatrixMul (floatMatrixMul x y) z = reduce floatMatrixMul (HighVector [x,y,z])
+"reduce_mul_add" forall xs y .  floatMatrixMul (reduce floatMatrixMul (HighVector xs)) y = reduce floatMatrixMul (HighVector (xs ++ [y]))
+
+"transpose_transpose" forall m . floatMatrixTranspose (floatMatrixTranspose m) = m
+
+"scale_scale" forall f1 f2 m . floatMatrixScale f1 (floatMatrixScale f2 m) = floatMatrixScale (f1 * f2) m
+  #-}
 

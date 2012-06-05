@@ -22,3 +22,7 @@ void starpu_cublas_init_v2(void) {
   //TODO: check return error
   cublasCreate(&cublas_handle);
 }
+
+void force_compute(starpu_data_handle_t * handle) {
+  //nothing
+}

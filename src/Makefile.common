@@ -12,7 +12,7 @@ CUFILES= $(wildcard BLAS/*.cu StarPU/Data/*.cu)
 CUOBJS= $(CUFILES:.cu=.o)
 
 %.hs: %.hsc
-	@hsc2hs --cflag=`pkg-config libstarpu --cflags-only-I` $<
+	@hsc2hs --cflag=`pkg-config libstarpu --cflags-only-I` -I$(CUBLASINC) $<
 
 %.o: %.cu
 	nvcc -c -o $@ $<
