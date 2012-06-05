@@ -11,6 +11,7 @@ import Data.Word
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
+import Foreign.ForeignPtr
 import Foreign.C
 import Foreign.Storable
 import System.IO.Unsafe
@@ -49,3 +50,6 @@ instance Show (Matrix a) where
     "; elemsize = "++ show elemSize ++
     "; handle = "++ show handle ++")"
 
+instance Computable (Matrix a) where
+  compute a = withForeignPtr (handle a) $ dataForceCompute
+  wait a = eventWait (event a)

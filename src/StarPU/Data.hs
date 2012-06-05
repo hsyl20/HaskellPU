@@ -47,17 +47,15 @@ unregisterInvalid a = withForeignPtr (handle a) $ dataUnregisterInvalid
 invalidate :: Data a => a -> IO ()
 invalidate a = withForeignPtr (handle a) $ dataInvalidate
 
-{- |Force asynchronous computation of the given parameter -}
-compute :: Data a => a -> IO ()
-compute a = withForeignPtr (handle a) $ dataForceCompute
+class Computable a where
+  {- |Force asynchronous computation of the given parameter -}
+  compute :: a -> IO ()
 
-{- |Force synchronous computation of the given parameter -}
-computeSync :: Data a => a -> IO ()
-computeSync a = do
-  compute a
-  waitData a
+  {- |Synchronous wait for a data -}
+  wait :: a -> IO ()
 
-waitData :: Data a => a -> IO ()
-waitData a = eventWait (event a)
-
-
+  {- |Force synchronous computation of the given parameter -}
+  computeSync :: a -> IO ()
+  computeSync a = do
+    compute a
+    wait a

@@ -109,19 +109,22 @@ cons :: a -> HighVector a -> HighVector a
 cons a (HighVector l) = HighVector (a:l)
 
 {- Force asynchronous computation of each cell of the high matrix -}
-computeHighMatrix :: Data a => HighMatrix a -> IO ()
+computeHighMatrix :: (Data a, Computable a) => HighMatrix a -> IO ()
 computeHighMatrix a = traverseHighMatrix compute a
 
 {- Wait for each cell of the high matrix to be computed -}
-waitHighMatrix :: Data a => HighMatrix a -> IO ()
-waitHighMatrix a = traverseHighMatrix waitData a
+waitHighMatrix :: (Data a, Computable a) => HighMatrix a -> IO ()
+waitHighMatrix a = traverseHighMatrix wait a
 
 {- Compute in parallel each cell of the high matrix and wait for the result -}
-computeHighMatrixSync :: Data a => HighMatrix a -> IO ()
+computeHighMatrixSync :: (Data a, Computable a) => HighMatrix a -> IO ()
 computeHighMatrixSync a = do
   computeHighMatrix a
   waitHighMatrix a
 
+instance (Data a, Computable a) => Computable (HighMatrix a) where
+  compute = computeHighMatrix
+  wait = waitHighMatrix
 
 printHighMatrix :: HighMatrix (Matrix Float) -> IO ()
 printHighMatrix m = do

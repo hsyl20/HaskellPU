@@ -27,13 +27,14 @@ main = do
   putStrLn "  2 - Split Matrix Multiplication"
   putStrLn "  3 - Simple Matrix Multiplication (displayed)"
   putStrLn "  4 - Simple Matrix Addition (displayed)"
-  putStrLn "  5 - Simple Matrix Tranpose (displayed)"
+  putStrLn "  5 - Simple Matrix Transpose (displayed)"
   putStrLn "  6 - Simple Matrix Scale (displayed)"
   putStrLn "  7 - Rewriting of Multiple Matrix Additions"
   putStrLn "  8 - Triangular Matrix Solver (displayed)"
   putStrLn "  9 - Triangular Matrix Multiplication (displayed)"
   putStrLn "  10 - Cholesky (displayed)"
   putStrLn "  11 - Cholesky benchmark"
+  putStrLn "  12 - Cholesky benchmark (already tiled)"
   putStr "> "
   hFlush stdout
   c <- getLine
@@ -59,6 +60,14 @@ main = do
       n <- askNumber "Enter matrix size"
       b <- askNumber "Enter block size"
       (initTime,dataInitTime,computeTime) <- sample [stableHilbertMatrix n] (choleskyBench b)
+      putStrLn $ "Computing time: " ++ show (1000.0 * (toFloat computeTime)) ++ "ms"
+      putStrLn $ "Synthetic GFlops: " ++ show (1.0*(fromIntegral n)*(fromIntegral n)*(fromIntegral n) / 3.0 / (toFloat computeTime) / 1000000000.0)
+      return (initTime,dataInitTime,computeTime)
+    12 -> do
+      n <- askNumber "Enter matrix size"
+      bsize <- askNumber "Enter block size"
+      nb <-return $  div n bsize
+      (initTime,dataInitTime,computeTime) <- sample [split nb nb (stableHilbertMatrix n)] choleskyBenchTiled
       putStrLn $ "Computing time: " ++ show (1000.0 * (toFloat computeTime)) ++ "ms"
       putStrLn $ "Synthetic GFlops: " ++ show (1.0*(fromIntegral n)*(fromIntegral n)*(fromIntegral n) / 3.0 / (toFloat computeTime) / 1000000000.0)
       return (initTime,dataInitTime,computeTime)
@@ -96,7 +105,7 @@ sample ds f = do
   putStrLn "Initializing data..."
   t1 <- getCurrentTime
   mapM compute ds
-  mapM waitData ds
+  mapM wait ds
   putStrLn "Computing..."
   t2 <- getCurrentTime
   f ds
@@ -166,7 +175,10 @@ choleskySample [a] = do
   printFloatMatrix $ floatMatrixPotrf a
 
 choleskyBench bsize [a] = do
- computeHighMatrixSync (cholesky bsize a)
+ computeSync (cholesky bsize a)
+
+choleskyBenchTiled [a] = do
+ computeSync (choleskyTiled a)
 
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
