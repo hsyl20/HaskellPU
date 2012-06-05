@@ -142,9 +142,11 @@ floatMatrixComputeTask :: Word -> Word -> Word -> (UnsafeHandle -> IO Task) -> [
 floatMatrixComputeTask w h ld f deps = unsafePerformIO $ do
   --FIXME: StarPU is not able to allocate a matrix with a NULL ptr
   handle <- floatMatrixRegisterInvalid w h
-  task <- withForeignPtr handle $ f
-  mapM (taskDependsOn task) deps
-  taskSubmit task
+  task <- withForeignPtr handle $ \hdl -> do
+    task <- f hdl
+    mapM (taskDependsOn task) deps
+    taskSubmit task
+    return task
   return $ Matrix handle (taskEvent task) w h ld 4
 
 
