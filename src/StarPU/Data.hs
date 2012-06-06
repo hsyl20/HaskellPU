@@ -26,17 +26,17 @@ class Data a where
   handle :: a -> Handle
   event :: a -> Event
 
-foreign import ccall "starpu_data_unregister" dataUnregister :: UnsafeHandle -> IO ()
-foreign import ccall "starpu_data_unregister_no_coherency" dataUnregisterInvalid :: UnsafeHandle -> IO ()
-foreign import ccall "starpu_data_unregister_lazy" dataUnregisterLazy :: UnsafeHandle -> IO ()
-foreign import ccall "&starpu_data_unregister_lazy" p_dataUnregisterLazy :: FunPtr(UnsafeHandle -> IO ())
-foreign import ccall "starpu_data_invalidate" dataInvalidate :: UnsafeHandle -> IO ()
-foreign import ccall "starpu_data_release" dataRelease :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "starpu_data_unregister" dataUnregister :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "starpu_data_unregister_no_coherency" dataUnregisterInvalid :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "starpu_data_unregister_lazy" dataUnregisterLazy :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "&starpu_data_unregister_lazy" p_dataUnregisterLazy :: FunPtr(UnsafeHandle -> IO ())
+foreign import ccall unsafe "starpu_data_invalidate" dataInvalidate :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "starpu_data_release" dataRelease :: UnsafeHandle -> IO ()
 
-foreign import ccall "starpu_data_acquire" dataAcquire :: UnsafeHandle -> AccessMode -> IO Int
+foreign import ccall unsafe "starpu_data_acquire" dataAcquire :: UnsafeHandle -> AccessMode -> IO Int
 foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())
 
-foreign import ccall "force_compute" dataForceCompute :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "force_compute" dataForceCompute :: UnsafeHandle -> IO ()
 
 unregister :: Data a => a -> IO ()
 unregister a = withForeignPtr (handle a) $ dataUnregister
