@@ -1,4 +1,4 @@
-module StarPU.AccessMode where
+module ViperVM.AccessMode where
 
 import Foreign.C
 

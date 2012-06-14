@@ -33,19 +33,14 @@ static struct starpu_perfmodel spotrf_model =
 };
 
 static void spotrf_cuda(void *descr[], void *args) {
-  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
-  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
 
   unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
   unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
-  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[0]);
   
   cublasSetStream(cublas_handle, starpu_cuda_get_local_stream());
-
-  cuda_floatmatrix_duplicate(w, h, a, lda, b, ldb);
-  cudaStreamSynchronize(starpu_cuda_get_local_stream());
 
   float *lambda11;
   cudaHostAlloc((void **)&lambda11, sizeof(float), 0);
@@ -76,16 +71,12 @@ static void spotrf_cuda(void *descr[], void *args) {
 }
 
 static void spotrf_cpu(void *descr[], void *_args) {
-  float *a = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
-  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[1]);
+  float *b = (float *)STARPU_MATRIX_GET_PTR(descr[0]);
 
   unsigned w = STARPU_MATRIX_GET_NY(descr[0]);
   unsigned h = STARPU_MATRIX_GET_NX(descr[0]);
 
-  unsigned lda = STARPU_MATRIX_GET_LD(descr[0]);
-  unsigned ldb = STARPU_MATRIX_GET_LD(descr[1]);
-
-  floatmatrix_duplicate(a,lda,b,ldb,w,h);
+  unsigned ldb = STARPU_MATRIX_GET_LD(descr[0]);
 
   char uplo = 'L';
   int info;
@@ -94,19 +85,19 @@ static void spotrf_cpu(void *descr[], void *_args) {
 
 static struct starpu_codelet spotrf_codelet =
 {
-  .modes = { STARPU_R, STARPU_W },
+  .modes = { STARPU_RW },
   .where = STARPU_CUDA | STARPU_CPU,
   .cpu_funcs = {spotrf_cpu, NULL},
   .cuda_funcs = {spotrf_cuda, NULL},
-  .nbuffers = 2,
+  .nbuffers = 1,
   .model = &spotrf_model
 };
 
-struct starpu_task * floatmatrix_spotrf_task_create(starpu_data_handle_t a, starpu_data_handle_t b) {
+struct starpu_task * floatmatrix_spotrf_task_create(starpu_data_handle_t a) {
+
   struct starpu_task * task = starpu_task_create_ex();
   task->cl = &spotrf_codelet;
   task->handles[0] = a;
-  task->handles[1] = b;
 
   return task;
 }

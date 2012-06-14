@@ -1,8 +1,8 @@
 import Test.QuickCheck
 
-import StarPU.Data.FloatMatrix
-import StarPU.Data.Matrix
-import StarPU.Platform
+import ViperVM.Data.FloatMatrix
+import ViperVM.Data.Matrix
+import ViperVM.Platform
 import Data.List
 import System.IO.Unsafe
 

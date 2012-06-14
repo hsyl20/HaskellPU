@@ -1,4 +1,4 @@
-module StarPU.Solver where
+module ViperVM.Solver where
 
 class Solver a b x | a b -> x where
   solveAXB :: a -> b -> x

@@ -1,4 +1,4 @@
-module StarPU.Event where
+module ViperVM.Event where
 
 import Foreign.C
 import Foreign.Ptr

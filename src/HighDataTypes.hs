@@ -7,9 +7,9 @@ import Data.Word
 import Data.Ix
 import Control.Applicative
 import Data.Foldable
-import StarPU.Data
-import StarPU.Data.FloatMatrix
-import StarPU.Data.Matrix
+import ViperVM.Data
+import ViperVM.Data.FloatMatrix
+import ViperVM.Data.Matrix
 
 data HighVector a = HighVector [a] deriving Show
 data HighMatrix a = HighMatrix [[a]] deriving Show
@@ -134,8 +134,8 @@ printHighMatrix m = do
 split :: Word -> Word -> Matrix Float -> HighMatrix (Matrix Float)
 split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
   where
-    rows = range (0,y-1)
-    cols = range (0,x-1)
+    rows = [0..y-1]
+    cols = [0..x-1]
     w = width m
     h = height m
     wp = div w x

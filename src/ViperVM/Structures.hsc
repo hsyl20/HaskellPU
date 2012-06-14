@@ -1,8 +1,8 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
  
-module StarPU.Structures where
+module ViperVM.Structures where
  
-import StarPU.Event
+import ViperVM.Event
 
 import Foreign
 import Foreign.Ptr
@@ -11,14 +11,14 @@ import Foreign.C.Types
  
 #include <starpu.h>
  
-data StarPUConf = StarPUConf {
+data ViperVMConf = ViperVMConf {
   ncpus :: CInt,
   ncuda :: CInt,
   nopencl :: CInt,
   nspus :: CInt
 }
  
-instance Storable StarPUConf where
+instance Storable ViperVMConf where
     sizeOf    _ = (#size struct starpu_conf)
     alignment _ = alignment (undefined :: CDouble)
     peek ptr = do
@@ -26,13 +26,13 @@ instance Storable StarPUConf where
         cuda <- (#peek struct starpu_conf, ncuda) ptr
         opencl <- (#peek struct starpu_conf, nopencl) ptr
         spus <- (#peek struct starpu_conf, nspus) ptr
-        return  StarPUConf { 
+        return  ViperVMConf { 
             ncpus = cpus,
             ncuda = cuda,
             nopencl = opencl,
             nspus = spus
         }
-    poke ptr (StarPUConf ncpus ncuda nopencl nspus) = do
+    poke ptr (ViperVMConf ncpus ncuda nopencl nspus) = do
         (#poke struct starpu_conf, ncpus) ptr ncpus
         (#poke struct starpu_conf, ncuda) ptr ncuda
         (#poke struct starpu_conf, nopencl) ptr nopencl

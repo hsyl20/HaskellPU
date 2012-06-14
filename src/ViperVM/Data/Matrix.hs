@@ -1,10 +1,10 @@
-module StarPU.Data.Matrix where
+module ViperVM.Data.Matrix where
 
-import StarPU.AccessMode
-import StarPU.Event
-import StarPU.Data
-import StarPU.Structures
-import StarPU.Task
+import ViperVM.AccessMode
+import ViperVM.Event
+import ViperVM.Data
+import ViperVM.Structures
+import ViperVM.Task
 
 import Data.Ix
 import Data.Word

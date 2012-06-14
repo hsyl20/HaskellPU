@@ -1,17 +1,17 @@
-module StarPU.Platform where
+module ViperVM.Platform where
 
-import StarPU.Data
-import StarPU.Structures
-import StarPU.Task
-import StarPU.Event
+import ViperVM.Data
+import ViperVM.Structures
+import ViperVM.Task
+import ViperVM.Event
 import Foreign.Ptr
 import Foreign.C
 import Control.DeepSeq
 import System.IO.Unsafe
 
-{- StarPU's platform foreign functions -}
+{- ViperVM's platform foreign functions -}
 
-foreign import ccall unsafe "starpu.h starpu_init" initialize :: Ptr StarPUConf -> IO CInt
+foreign import ccall unsafe "starpu.h starpu_init" initialize :: Ptr ViperVMConf -> IO CInt
 foreign import ccall unsafe "starpu.h starpu_shutdown" shutdown :: IO ()
 foreign import ccall unsafe "starpu.h starpu_worker_get_count" workerCount :: CUInt
 foreign import ccall unsafe "starpu.h starpu_combined_worker_get_count" combinedWorkerCount :: CUInt
@@ -34,7 +34,7 @@ foreign import ccall unsafe "starpu_sched_policy_description" starpuSchedPolicyD
 {- |Indicate if asynchronous copies are enabled -}
 asynchronousCopyEnabled = (asynchronousCopyDisabled == 0)
 
-{- |Indicate if StarPU's data flow mode is enabled -}
+{- |Indicate if ViperVM's data flow mode is enabled -}
 dataflowModeEnabled = (dataflowModeGet /= 0)
 
 {- |Indicate if prefetching is enabled -}
@@ -50,7 +50,7 @@ schedPolicyDescription = unsafePerformIO $ do
   s <- peekCString $ starpuSchedPolicyDescription
   return s
 
-{- |Initialize StarPU to be used from Haskell -}
+{- |Initialize ViperVM to be used from Haskell -}
 defaultInit = do
   initialize nullPtr
   dataflowModeSet 0

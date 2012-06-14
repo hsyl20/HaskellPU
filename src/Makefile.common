@@ -1,15 +1,17 @@
-HSCFILES= $(wildcard *.hsc StarPU/*.hsc)
+HSCFILES= $(wildcard *.hsc ViperVM/*.hsc)
 HSC= $(HSCFILES:.hsc=.hs)
 HSCOBJS= $(HSCFILES:.hsc=.o)
 
-CFILES= $(wildcard *.c StarPU/*.c BLAS/*.c StarPU/Data/*.c)
+CFILES= $(wildcard *.c ViperVM/*.c BLAS/*.c ViperVM/Data/*.c)
 OBJS= $(CFILES:.c=.o)
 
-HSFILES= $(wildcard *.hs StarPU/*.hs BLAS/*.hs StarPU/Data/*.hs)
+HSFILES= $(wildcard *.hs ViperVM/*.hs BLAS/*.hs ViperVM/Data/*.hs)
 HSOBJS= $(HSFILES:.hs=.o)
 
-CUFILES= $(wildcard BLAS/*.cu StarPU/Data/*.cu)
+CUFILES= $(wildcard BLAS/*.cu ViperVM/Data/*.cu)
 CUOBJS= $(CUFILES:.cu=.o)
+
+GHC=ghc -O -rtsopts -threaded -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart
 
 %.hs: %.hsc
 	@hsc2hs --cflag=`pkg-config libstarpu --cflags-only-I` -I$(CUBLASINC) $<
@@ -21,11 +23,11 @@ CUOBJS= $(CUFILES:.cu=.o)
 	gcc -Wall -c -o $@ `pkg-config libstarpu --cflags-only-I` -I$(CUBLASINC) $<
 
 all: $(HSC) $(EXEC) $(OBJS) $(CUOBJS)
-	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart $(EXEC) $(OBJS) $(CUOBJS)
+	${GHC} $(EXEC) $(OBJS) $(CUOBJS)
 	
 
 clean:
-	@rm -f *.hi BLAS/*.hi StarPU/*.hi StarPU/Data/*.hi Test Tests $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) $(CUOBJS) *.trace *.data *.log *.dot *.pdf *.txt
+	@rm -f *.hi BLAS/*.hi ViperVM/*.hi ViperVM/Data/*.hi Test Tests $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) $(CUOBJS) *.trace *.data *.log *.dot *.pdf *.txt
 	@rm -rf doc
 
 doc: $(HSC)
@@ -33,5 +35,5 @@ doc: $(HSC)
 	haddock -h -o doc/ --optghc=-XMultiParamTypeClasses --optghc=-XFunctionalDependencies --optghc=-XFlexibleInstances $(HSFILES)
   
 tests: $(HSC) $(OBJS) $(CUOBJS)
-	ghc -O -rtsopts -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart Tests.hs $(OBJS) $(CUOBJS)
+	${GHC} Tests.hs $(OBJS) $(CUOBJS)
 	./Tests

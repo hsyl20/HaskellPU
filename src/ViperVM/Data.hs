@@ -1,4 +1,4 @@
-module StarPU.Data where
+module ViperVM.Data where
 
 import Foreign.Ptr
 import Data.List
@@ -13,10 +13,10 @@ import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import System.IO.Unsafe
 
-import StarPU.Structures
-import StarPU.Event
-import StarPU.Task
-import StarPU.AccessMode
+import ViperVM.Structures
+import ViperVM.Event
+import ViperVM.Task
+import ViperVM.AccessMode
 
 
 type Handle = ForeignPtr ()
@@ -32,6 +32,7 @@ foreign import ccall unsafe "starpu_data_unregister_lazy" dataUnregisterLazy :: 
 foreign import ccall unsafe "&starpu_data_unregister_lazy" p_dataUnregisterLazy :: FunPtr(UnsafeHandle -> IO ())
 foreign import ccall unsafe "starpu_data_invalidate" dataInvalidate :: UnsafeHandle -> IO ()
 foreign import ccall unsafe "starpu_data_release" dataRelease :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "starpu_data_duplicate_ex" dataDuplicate :: UnsafeHandle -> UnsafeHandle -> IO Task
 
 foreign import ccall unsafe "starpu_data_acquire" dataAcquire :: UnsafeHandle -> AccessMode -> IO Int
 foreign import ccall unsafe "starpu_malloc_ex" starpuMalloc :: CSize -> IO (Ptr ())

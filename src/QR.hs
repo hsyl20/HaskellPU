@@ -4,8 +4,8 @@ import qualified Prelude
 import Prelude (($), (-), (==), Int, Float, undefined)
 import Data.Word
 import HighDataTypes
-import StarPU.Data.Matrix
-import StarPU.Data.FloatMatrix
+import ViperVM.Data.Matrix
+import ViperVM.Data.FloatMatrix
 import Data.Functor
 
 unsplit :: Word -> Word -> HighMatrix (Matrix Float) -> Matrix Float

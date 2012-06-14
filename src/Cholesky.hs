@@ -4,9 +4,9 @@ import Prelude hiding (head,tail,zipWith)
 import Data.Word
 
 import HighDataTypes
-import StarPU.Data.Matrix
-import StarPU.Data.FloatMatrix
-import StarPU.Data.TriangularMatrix
+import ViperVM.Data.Matrix
+import ViperVM.Data.FloatMatrix
+import ViperVM.Data.TriangularMatrix
 
 cholesky :: Word -> Matrix Float -> HighMatrix (Matrix Float)
 cholesky bsize m = choleskyTiled $ split n n m

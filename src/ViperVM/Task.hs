@@ -1,6 +1,6 @@
-module StarPU.Task where
+module ViperVM.Task where
 
-import StarPU.Event
+import ViperVM.Event
 
 import Foreign.Ptr
 import Foreign.C

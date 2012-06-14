@@ -1,10 +1,10 @@
-module StarPU.Data.TriangularMatrix where
+module ViperVM.Data.TriangularMatrix where
 
-import StarPU.Solver
-import StarPU.Task
-import StarPU.Data
-import StarPU.Data.FloatMatrix
-import StarPU.Data.Matrix
+import ViperVM.Solver
+import ViperVM.Task
+import ViperVM.Data
+import ViperVM.Data.FloatMatrix
+import ViperVM.Data.Matrix
 
 {-| A triangular matrix can either be lower or upper. It is based on a regular
     matrix and must indicate if it is a unit matrix -}
