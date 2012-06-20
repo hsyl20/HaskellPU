@@ -1,5 +1,4 @@
 CUBLASINC=/usr/local/cuda/cuda-4.0/include
 CUBLASLIB=/usr/local/cuda/cuda-4.0/lib64
-EXEC=Test.hs
 
 include Makefile.common

@@ -1,6 +1,8 @@
 #include <starpu.h>
 #include "Event.h"
 
+extern struct starpu_task * floatmatrix_duplicate_task_create(starpu_data_handle_t s, starpu_data_handle_t d);
+
 static void task_callback(void * e) {
   Event event = (Event)e;
   starpu_event_trigger(event);
@@ -32,14 +34,15 @@ struct starpu_task* starpu_task_create_ex(void) {
   return task;
 }
 
-/*struct starpu_task * starpu_data_duplicate_ex(starpu_data_handle_t src, starpu_data_handle_t dst) {
+struct starpu_task * starpu_data_duplicate_ex(starpu_data_handle_t src, starpu_data_handle_t dst) {
 
-  struct starpu_task * task = starpu_data_duplicate(src,dst,0);
+  //struct starpu_task * task = starpu_data_duplicate(src,dst,0);
+  struct starpu_task * task = floatmatrix_duplicate_task_create(src,dst);
   
   haskellpu_task_init(task);
 
   return task;
-}*/
+}
 
 void starpu_task_depends_on(struct starpu_task *task, Event e) {
   starpu_tag_t tag = starpu_event_tag(e);

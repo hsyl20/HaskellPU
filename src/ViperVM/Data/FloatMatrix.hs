@@ -109,7 +109,6 @@ floatMatrixInplaceTask f deps m = unsafePerformIO $ do
 
 floatMatrixComputeTask :: Word -> Word -> Word -> (UnsafeHandle -> IO Task) -> [Event] -> Matrix Float
 floatMatrixComputeTask w h ld f deps = unsafePerformIO $ do
-  --FIXME: ViperVM is not able to allocate a matrix with a NULL ptr
   handle <- floatMatrixRegisterInvalid w h
   task <- withForeignPtr handle $ \hdl -> do
     task <- f hdl
@@ -123,9 +122,9 @@ waitAndShow m = do
   putStrLn (show m)
   
 -- |Register a ViperVM matrix a Float stored at the given address
-floatMatrixRegister :: Ptr () -> Word -> Word -> Word -> IO Handle
-floatMatrixRegister ptr width height ld = alloca $ \handle -> do
-  matrixRegister handle 0 nptr nld nx ny 4
+floatMatrixRegister :: Ptr () -> Int -> Word -> Word -> Word -> IO Handle
+floatMatrixRegister ptr node width height ld = alloca $ \handle -> do
+  matrixRegister handle node nptr nld nx ny 4
   hdl <- peek handle
   newForeignPtr p_dataUnregisterLazy hdl
   where
@@ -145,7 +144,7 @@ floatMatrixMayInit f width height = unsafePerformIO $ do
         cells = concat $ map (\col -> map (\row -> g col row) rows) cols
         rows = [0..height-1]
         cols = [0..width-1]
-  handle <- floatMatrixRegister ptr width height height
+  handle <- floatMatrixRegister ptr 0 width height height
   return $ Matrix handle dummyEvent width height height 4
 
 -- |Initialize a new matrix of Float using the given function
@@ -158,8 +157,8 @@ floatMatrixInvalid width height = floatMatrixMayInit Nothing width height
 
 floatMatrixRegisterInvalid :: Word -> Word -> IO Handle
 floatMatrixRegisterInvalid width height = do
-  ptr <- starpuMalloc rawSize
-  floatMatrixRegister ptr width height height
+--  ptr <- starpuMalloc rawSize
+  floatMatrixRegister nullPtr (-1) width height height
   where
     rawSize = fromIntegral (width*height*4)
 
