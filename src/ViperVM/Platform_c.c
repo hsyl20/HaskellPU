@@ -1,5 +1,4 @@
 #include <starpu.h>
-#include <cublas_v2.h>
 
 extern struct starpu_sched_policy * _starpu_get_sched_policy(void);
 
@@ -20,7 +19,7 @@ cublasHandle_t cublas_handle = NULL;
 
 void starpu_cublas_init_v2(void) {
   //TODO: check return error
-  cublasCreate(&cublas_handle);
+  cublasCreate_v2(&cublas_handle);
 }
 
 void force_compute(starpu_data_handle_t * handle) {

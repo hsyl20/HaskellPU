@@ -79,6 +79,8 @@ main = do
   putStrLn $ "Computing time: " ++ show computeTime
   putStrLn "==============================================================="
 
+  shutdown
+
 
 toFloat n = realToFrac n :: Float
 

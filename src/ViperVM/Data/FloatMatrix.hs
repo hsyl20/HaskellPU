@@ -124,11 +124,10 @@ waitAndShow m = do
 -- |Register a ViperVM matrix a Float stored at the given address
 floatMatrixRegister :: Ptr () -> Int -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr node width height ld = alloca $ \handle -> do
-  matrixRegister handle node nptr nld nx ny 4
+  matrixRegister handle node ptr nld nx ny 4
   hdl <- peek handle
   newForeignPtr p_dataUnregisterLazy hdl
   where
-    nptr = fromIntegral $ ptrToWordPtr ptr
     nld = fromIntegral ld
     nx = fromIntegral height
     ny = fromIntegral width
@@ -171,7 +170,7 @@ withAcquiredData m f = do
     eventWait (event m)
     dataAcquire hdl readOnly
     ptr <- matrixLocalPtr hdl
-    res <- f ptr
+    res <- f (ptrToWordPtr ptr)
     dataRelease hdl
     return res
 

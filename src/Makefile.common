@@ -23,7 +23,6 @@ GHC=ghc -O -rtsopts -threaded -XFlexibleInstances -XMultiParamTypeClasses -XFunc
 	gcc -Wall -c -o $@ `pkg-config libstarpu --cflags-only-I` -I$(CUBLASINC) $<
 
 all: $(HSC) $(OBJS) $(CUOBJS)
-#	${GHC} TestV2.hs
 	${GHC} Test.hs $(OBJS) $(CUOBJS)
 	
 

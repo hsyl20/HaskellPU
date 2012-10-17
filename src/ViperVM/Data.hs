@@ -28,8 +28,8 @@ class Data a where
 
 foreign import ccall unsafe "starpu_data_unregister" dataUnregister :: UnsafeHandle -> IO ()
 foreign import ccall unsafe "starpu_data_unregister_no_coherency" dataUnregisterInvalid :: UnsafeHandle -> IO ()
-foreign import ccall unsafe "starpu_data_unregister_lazy" dataUnregisterLazy :: UnsafeHandle -> IO ()
-foreign import ccall unsafe "&starpu_data_unregister_lazy" p_dataUnregisterLazy :: FunPtr(UnsafeHandle -> IO ())
+foreign import ccall unsafe "starpu_data_unregister_submit" dataUnregisterLazy :: UnsafeHandle -> IO ()
+foreign import ccall unsafe "&starpu_data_unregister_submit" p_dataUnregisterLazy :: FunPtr(UnsafeHandle -> IO ())
 foreign import ccall unsafe "starpu_data_invalidate" dataInvalidate :: UnsafeHandle -> IO ()
 foreign import ccall unsafe "starpu_data_release" dataRelease :: UnsafeHandle -> IO ()
 foreign import ccall unsafe "starpu_data_duplicate_ex" dataDuplicate :: UnsafeHandle -> UnsafeHandle -> IO Task

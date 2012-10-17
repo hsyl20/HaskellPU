@@ -1,6 +1,6 @@
 #include <starpu.h>
 #include <starpu_cuda.h>
-#include <cublas.h>
+#include <cublas_v2.h>
 
 #include "../Task.h"
 #include "FloatMatrix_kernels.h"

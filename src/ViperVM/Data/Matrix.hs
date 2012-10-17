@@ -20,9 +20,9 @@ import System.Mem.Weak
  - Foreign imports 
  -------------------}
 
-foreign import ccall unsafe "starpu_matrix_data_register" matrixRegister :: Ptr UnsafeHandle -> Int -> WordPtr -> Word -> Word -> Word -> CSize -> IO ()
-foreign import ccall unsafe "starpu_variable_data_register" variableRegister :: Ptr UnsafeHandle -> Word -> WordPtr -> CSize -> IO ()
-foreign import ccall "starpu_matrix_get_local_ptr" matrixLocalPtr :: UnsafeHandle -> IO WordPtr
+foreign import ccall unsafe "starpu_matrix_data_register" matrixRegister :: Ptr UnsafeHandle -> Int -> Ptr () -> Word -> Word -> Word -> CSize -> IO ()
+foreign import ccall unsafe "starpu_variable_data_register" variableRegister :: Ptr UnsafeHandle -> Word -> Ptr () -> CSize -> IO ()
+foreign import ccall "starpu_matrix_get_local_ptr" matrixLocalPtr :: UnsafeHandle -> IO (Ptr ())
 
 {-------------------
  - Data and instances
