@@ -18,6 +18,8 @@ cabal-version:       >=1.8
 library
   pkgconfig-depends:   libstarpu
 
+  ld-options:          -lblas
+
   c-sources:           
                        HaskellPU/Data_c.c
                        HaskellPU/Task_c.c
