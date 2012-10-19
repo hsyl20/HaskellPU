@@ -12,5 +12,7 @@ HaskellPU
 
 
 $ cabal configure
+
 $ cabal build
+
 $ ./dist/build/Test/Test

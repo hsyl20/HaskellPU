@@ -45,18 +45,14 @@ library
 
   exposed-modules:     
     HaskellPU.AccessMode, 
-    HaskellPU.Buffer, 
     HaskellPU.Cholesky, 
-    HaskellPU.Driver,
     HaskellPU.Event, 
     HaskellPU.HighDataTypes, 
-    HaskellPU.Memory, 
     HaskellPU.Platform, 
     HaskellPU.QR, 
     HaskellPU.Solver, 
     HaskellPU.Structures, 
     HaskellPU.Task, 
-    HaskellPU.View, 
 
     HaskellPU.Data, 
     HaskellPU.Data.Matrix, 
