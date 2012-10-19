@@ -10,10 +10,7 @@ HaskellPU
   * hsc2hs
   * gcc
 
-* Build
 
-        > make
-
-* Execute
-
-        > ./Test
+$ cabal configure
+$ cabal build
+$ ./dist/build/Test/Test
