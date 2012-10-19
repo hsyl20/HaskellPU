@@ -1,11 +1,11 @@
-module QR where
+module HaskellPU.QR where
 
 import qualified Prelude
 import Prelude (($), (-), (==), Int, Float, undefined)
 import Data.Word
-import HighDataTypes
-import ViperVM.Data.Matrix
-import ViperVM.Data.FloatMatrix
+import HaskellPU.HighDataTypes
+import HaskellPU.Data.Matrix
+import HaskellPU.Data.FloatMatrix
 import Data.Functor
 
 unsplit :: Word -> Word -> HighMatrix (Matrix Float) -> Matrix Float

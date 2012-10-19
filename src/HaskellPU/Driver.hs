@@ -1,7 +1,7 @@
-module ViperVM.Driver
+module HaskellPU.Driver
 	where
 
-import ViperVM.Memory
+import HaskellPU.Memory
 
 class Driver a where
 	memos :: a -> [Memory]

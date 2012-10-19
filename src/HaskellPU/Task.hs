@@ -1,6 +1,8 @@
-module ViperVM.Task where
+{-# LANGUAGE ForeignFunctionInterface #-}
 
-import ViperVM.Event
+module HaskellPU.Task where
+
+import HaskellPU.Event
 
 import Foreign.Ptr
 import Foreign.C

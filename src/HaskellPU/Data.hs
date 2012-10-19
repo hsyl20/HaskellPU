@@ -1,4 +1,6 @@
-module ViperVM.Data where
+{-# LANGUAGE ForeignFunctionInterface #-}
+
+module HaskellPU.Data where
 
 import Foreign.Ptr
 import Data.List
@@ -13,10 +15,10 @@ import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import System.IO.Unsafe
 
-import ViperVM.Structures
-import ViperVM.Event
-import ViperVM.Task
-import ViperVM.AccessMode
+import HaskellPU.Structures
+import HaskellPU.Event
+import HaskellPU.Task
+import HaskellPU.AccessMode
 
 
 type Handle = ForeignPtr ()

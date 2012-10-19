@@ -1,4 +1,6 @@
-module ViperVM.Data.FloatMatrix where
+{-# LANGUAGE ForeignFunctionInterface, FlexibleInstances #-}
+
+module HaskellPU.Data.FloatMatrix where
 
 import Data.Ix
 import Data.Word
@@ -13,13 +15,13 @@ import Foreign.Storable
 import System.IO.Unsafe
 import System.Mem.Weak
 
-import ViperVM.Data
-import ViperVM.Data.Matrix
-import ViperVM.Task
-import ViperVM.Structures
-import ViperVM.Platform
-import ViperVM.AccessMode
-import ViperVM.Event
+import HaskellPU.Data
+import HaskellPU.Data.Matrix
+import HaskellPU.Task
+import HaskellPU.Structures
+import HaskellPU.Platform
+import HaskellPU.AccessMode
+import HaskellPU.Event
 
 {-------------------
  - Foreign imports 
@@ -121,7 +123,7 @@ waitAndShow m = do
   eventWait (event m)
   putStrLn (show m)
   
--- |Register a ViperVM matrix a Float stored at the given address
+-- |Register a HaskellPU matrix a Float stored at the given address
 floatMatrixRegister :: Ptr () -> Int -> Word -> Word -> Word -> IO Handle
 floatMatrixRegister ptr node width height ld = alloca $ \handle -> do
   matrixRegister handle node ptr nld nx ny 4

@@ -1,10 +1,12 @@
-module ViperVM.Data.Matrix where
+{-# LANGUAGE ForeignFunctionInterface #-}
 
-import ViperVM.AccessMode
-import ViperVM.Event
-import ViperVM.Data
-import ViperVM.Structures
-import ViperVM.Task
+module HaskellPU.Data.Matrix where
+
+import HaskellPU.AccessMode
+import HaskellPU.Event
+import HaskellPU.Data
+import HaskellPU.Structures
+import HaskellPU.Task
 
 import Data.Word
 import Foreign.Marshal.Alloc

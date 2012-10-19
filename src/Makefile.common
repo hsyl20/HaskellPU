@@ -1,14 +1,14 @@
-HSCFILES= $(wildcard *.hsc ViperVM/*.hsc)
+HSCFILES= $(wildcard *.hsc HaskellPU/*.hsc)
 HSC= $(HSCFILES:.hsc=.hs)
 HSCOBJS= $(HSCFILES:.hsc=.o)
 
-CFILES= $(wildcard *.c ViperVM/*.c BLAS/*.c ViperVM/Data/*.c)
+CFILES= $(wildcard *.c HaskellPU/*.c BLAS/*.c HaskellPU/Data/*.c)
 OBJS= $(CFILES:.c=.o)
 
-HSFILES= $(wildcard *.hs ViperVM/*.hs BLAS/*.hs ViperVM/Data/*.hs)
+HSFILES= $(wildcard *.hs HaskellPU/*.hs BLAS/*.hs HaskellPU/Data/*.hs)
 HSOBJS= $(HSFILES:.hs=.o)
 
-CUFILES= $(wildcard BLAS/*.cu ViperVM/Data/*.cu)
+CUFILES= $(wildcard BLAS/*.cu HaskellPU/Data/*.cu)
 CUOBJS= $(CUFILES:.cu=.o)
 
 GHC=ghc -O -rtsopts -threaded -XFlexibleInstances -XMultiParamTypeClasses -XFunctionalDependencies `pkg-config libstarpu --libs --cflags` -lblas -llapack -L$(CUBLASLIB) -lcublas -lcudart
@@ -27,7 +27,7 @@ all: $(HSC) $(OBJS) $(CUOBJS)
 	
 
 clean:
-	@rm -f *.hi BLAS/*.hi ViperVM/*.hi ViperVM/Data/*.hi Test Tests $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) $(CUOBJS) *.trace *.data *.log *.dot *.pdf *.txt
+	@rm -f *.hi BLAS/*.hi HaskellPU/*.hi HaskellPU/Data/*.hi Test Tests $(HSC) $(OBJS) $(HSOBJS) $(HSCOBJS) $(CUOBJS) *.trace *.data *.log *.dot *.pdf *.txt
 	@rm -rf doc
 
 doc: $(HSC)

@@ -1,8 +1,8 @@
 import Test.QuickCheck
 
-import ViperVM.Data.FloatMatrix
-import ViperVM.Data.Matrix
-import ViperVM.Platform
+import HaskellPU.Data.FloatMatrix
+import HaskellPU.Data.Matrix
+import HaskellPU.Platform
 import Data.List
 import System.IO.Unsafe
 

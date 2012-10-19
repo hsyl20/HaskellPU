@@ -1,8 +1,8 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
  
-module ViperVM.Structures where
+module HaskellPU.Structures where
  
-import ViperVM.Event
+import HaskellPU.Event
 
 import Foreign
 import Foreign.Ptr
@@ -11,14 +11,14 @@ import Foreign.C.Types
  
 #include <starpu.h>
  
-data ViperVMConf = ViperVMConf {
+data HaskellPUConf = HaskellPUConf {
   ncpus :: CInt,
   ncuda :: CInt,
   nopencl :: CInt,
   nspus :: CInt
 }
  
-instance Storable ViperVMConf where
+instance Storable HaskellPUConf where
     sizeOf    _ = (#size struct starpu_conf)
     alignment _ = alignment (undefined :: CDouble)
     peek ptr = do
@@ -26,13 +26,13 @@ instance Storable ViperVMConf where
         cuda <- (#peek struct starpu_conf, ncuda) ptr
         opencl <- (#peek struct starpu_conf, nopencl) ptr
         spus <- (#peek struct starpu_conf, nspus) ptr
-        return  ViperVMConf { 
+        return  HaskellPUConf { 
             ncpus = cpus,
             ncuda = cuda,
             nopencl = opencl,
             nspus = spus
         }
-    poke ptr (ViperVMConf ncpus ncuda nopencl nspus) = do
+    poke ptr (HaskellPUConf ncpus ncuda nopencl nspus) = do
         (#poke struct starpu_conf, ncpus) ptr ncpus
         (#poke struct starpu_conf, ncuda) ptr ncuda
         (#poke struct starpu_conf, nopencl) ptr nopencl

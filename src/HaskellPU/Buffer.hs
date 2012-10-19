@@ -1,6 +1,6 @@
-module ViperVM.Buffer where
+module HaskellPU.Buffer where
 
-import ViperVM.Memory
+import HaskellPU.Memory
 
 -- |
 -- A buffer is a set of contiguous memory cells

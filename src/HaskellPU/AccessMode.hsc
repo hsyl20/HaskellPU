@@ -1,4 +1,4 @@
-module ViperVM.AccessMode where
+module HaskellPU.AccessMode where
 
 import Foreign.C
 

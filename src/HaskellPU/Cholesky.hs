@@ -1,12 +1,12 @@
-module Cholesky where
+module HaskellPU.Cholesky where
 
 import Prelude hiding (head,tail,zipWith)
 import Data.Word
 
-import HighDataTypes
-import ViperVM.Data.Matrix
-import ViperVM.Data.FloatMatrix
-import ViperVM.Data.TriangularMatrix
+import HaskellPU.HighDataTypes
+import HaskellPU.Data.Matrix
+import HaskellPU.Data.FloatMatrix
+import HaskellPU.Data.TriangularMatrix
 
 cholesky :: Word -> Matrix Float -> HighMatrix (Matrix Float)
 cholesky bsize m = choleskyTiled $ split n n m

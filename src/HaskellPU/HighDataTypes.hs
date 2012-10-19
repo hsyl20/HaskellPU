@@ -1,4 +1,6 @@
-module HighDataTypes where
+{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies #-}
+
+module HaskellPU.HighDataTypes where
 
 import Prelude hiding (foldr)
 import qualified Data.List
@@ -7,9 +9,9 @@ import Data.Word
 import Data.Ix
 import Control.Applicative
 import Data.Foldable
-import ViperVM.Data
-import ViperVM.Data.FloatMatrix
-import ViperVM.Data.Matrix
+import HaskellPU.Data
+import HaskellPU.Data.FloatMatrix
+import HaskellPU.Data.Matrix
 
 data HighVector a = HighVector [a] deriving Show
 data HighMatrix a = HighMatrix [[a]] deriving Show

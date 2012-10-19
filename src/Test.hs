@@ -6,14 +6,14 @@ import Data.Traversable
 import Data.Foldable
 import Data.Time.Clock
 
-import ViperVM.Platform
-import ViperVM.Task
-import ViperVM.Data
+import HaskellPU.Platform
+import HaskellPU.Task
+import HaskellPU.Data
 
-import ViperVM.Data.Matrix
-import ViperVM.Data.FloatMatrix
-import ViperVM.Data.TriangularMatrix
-import ViperVM.Solver
+import HaskellPU.Data.Matrix
+import HaskellPU.Data.FloatMatrix
+import HaskellPU.Data.TriangularMatrix
+import HaskellPU.Solver
 
 import QR
 import Cholesky

@@ -1,6 +1,6 @@
-module ViperVM.View where
+module HaskellPU.View where
 
-import ViperVM.Buffer
+import HaskellPU.Buffer
 
 -- |
 -- A view describes a set of memory cells in a buffer organized in a given pattern

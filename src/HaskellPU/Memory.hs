@@ -1,4 +1,4 @@
-module ViperVM.Memory where
+module HaskellPU.Memory where
 
 -- |
 -- A physical memory (id is used by the memory manager)

@@ -1,10 +1,12 @@
-module ViperVM.Data.TriangularMatrix where
+{-# LANGUAGE ForeignFunctionInterface, FlexibleInstances, MultiParamTypeClasses #-}
 
-import ViperVM.Solver
-import ViperVM.Task
-import ViperVM.Data
-import ViperVM.Data.FloatMatrix
-import ViperVM.Data.Matrix
+module HaskellPU.Data.TriangularMatrix where
+
+import HaskellPU.Solver
+import HaskellPU.Task
+import HaskellPU.Data
+import HaskellPU.Data.FloatMatrix
+import HaskellPU.Data.Matrix
 
 {-| A triangular matrix can either be lower or upper. It is based on a regular
     matrix and must indicate if it is a unit matrix -}
