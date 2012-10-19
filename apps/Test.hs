@@ -185,5 +185,5 @@ choleskyBenchTiled [a] = do
 highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
 highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
   where
-    dot v1 v2 = reduce (+) $ HighDataTypes.zipWith (*) v1 v2
+    dot v1 v2 = reduce (+) $ HaskellPU.HighDataTypes.zipWith (*) v1 v2
 
