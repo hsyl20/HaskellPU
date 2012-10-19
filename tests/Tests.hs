@@ -3,10 +3,11 @@ import Test.QuickCheck
 import HaskellPU.Data.FloatMatrix
 import HaskellPU.Data.Matrix
 import HaskellPU.Platform
+import HaskellPU.HighDataTypes (HighVector(HighVector), reduce)
+
 import Data.List
 import System.IO.Unsafe
 
-import HighDataTypes (HighVector(HighVector), reduce)
 
 newtype SquareMatrix a = SquareMatrix (Matrix Float)
 

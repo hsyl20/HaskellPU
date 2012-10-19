@@ -5,20 +5,20 @@ import Data.Word
 import Data.Traversable
 import Data.Foldable
 import Data.Time.Clock
+import System.IO
 
 import HaskellPU.Platform
 import HaskellPU.Task
 import HaskellPU.Data
+import HaskellPU.Solver
 
 import HaskellPU.Data.Matrix
 import HaskellPU.Data.FloatMatrix
 import HaskellPU.Data.TriangularMatrix
-import HaskellPU.Solver
 
-import QR
-import Cholesky
-import HighDataTypes
-import System.IO
+import HaskellPU.QR
+import HaskellPU.Cholesky
+import HaskellPU.HighDataTypes
 
 
 main = do
