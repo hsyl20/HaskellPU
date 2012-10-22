@@ -10,11 +10,12 @@ import Foreign.Ptr
 import Foreign.C
 import Control.DeepSeq
 import System.IO.Unsafe
+import System.Mem
 
 {- HaskellPU's platform foreign functions -}
 
 foreign import ccall unsafe "starpu.h starpu_init" initialize :: Ptr HaskellPUConf -> IO CInt
-foreign import ccall unsafe "starpu.h starpu_shutdown" shutdown :: IO ()
+foreign import ccall unsafe "starpu.h starpu_shutdown" starpuShutdown :: IO ()
 foreign import ccall unsafe "starpu.h starpu_worker_get_count" workerCount :: CUInt
 foreign import ccall unsafe "starpu.h starpu_combined_worker_get_count" combinedWorkerCount :: CUInt
 foreign import ccall unsafe "starpu.h starpu_cpu_worker_get_count" cpuWorkerCount :: CUInt
@@ -51,6 +52,11 @@ schedPolicyName = unsafePerformIO $ do
 schedPolicyDescription = unsafePerformIO $ do
   s <- peekCString $ starpuSchedPolicyDescription
   return s
+
+shutdown :: IO ()
+shutdown = do
+   performGC
+   starpuShutdown
 
 {- |Initialize HaskellPU to be used from Haskell -}
 defaultInit = do
