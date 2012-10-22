@@ -1,26 +1,24 @@
 import Prelude hiding (mapM,foldl1)
 
-import Data.Ix
 import Data.Word
 import Data.Traversable
-import Data.Foldable
 import Data.Time.Clock
 import System.IO
+import System.Exit
 
 import HaskellPU.Platform
-import HaskellPU.Task
 import HaskellPU.Data
-import HaskellPU.Solver
-
 import HaskellPU.Data.Matrix
+import HaskellPU.HighDataTypes
+
 import HaskellPU.Data.FloatMatrix
 import HaskellPU.Data.TriangularMatrix
 
-import HaskellPU.QR
-import HaskellPU.Cholesky
-import HaskellPU.HighDataTypes
+import HaskellPU.Algorithms.Solver
+import HaskellPU.Algorithms.Cholesky
 
 
+main :: IO ()
 main = do
   putStrLn "Choose an example to run:"
   putStrLn "  1 - Reduction"
@@ -39,7 +37,7 @@ main = do
   hFlush stdout
   c <- getLine
 
-  (initTime, dataInitTime, computeTime) <- case read c of
+  (initTime, dataInitTime, computeTime) <- case (read c :: Integer) of
     1 -> sample (matrixList 1024 1024)  reduction
     2 -> do
       n <- askNumber "Enter matrix size"
@@ -71,6 +69,7 @@ main = do
       putStrLn $ "Computing time: " ++ show (1000.0 * (toFloat computeTime)) ++ "ms"
       putStrLn $ "Synthetic GFlops: " ++ show (1.0*(fromIntegral n)*(fromIntegral n)*(fromIntegral n) / 3.0 / (toFloat computeTime) / 1000000000.0)
       return (initTime,dataInitTime,computeTime)
+    _ -> exitSuccess
       
 
   putStrLn "==============================================================="
@@ -81,7 +80,92 @@ main = do
 
   shutdown
 
+  where
+    identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
+    customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x*2 + y)) n m
+    hilbertMatrix n = floatMatrixInit (\x y -> 1.0 / ((fromIntegral x) + (fromIntegral y) + 1.0)) n n
+    stableHilbertMatrix n = hilbertMatrix n + (floatMatrixScale (fromIntegral n) (identityMatrix n))
+    matrixList n m = map (floatMatrixSet n m . fromIntegral :: Int -> Matrix Float) [1..30]
 
+    reduction ms = computeSync $ reduce (*) (HighVector ms)
+
+    splitMatMult va ha vb hb [a,b] = do
+      computeHighMatrixSync $ (split va ha a) * (split vb hb b)
+    splitMatMult _ _ _ _ _ = undefined
+
+    simpleMatMult [a,b] = do
+      putStrLn "A"
+      printFloatMatrix a
+      putStrLn "B"
+      printFloatMatrix b
+      putStrLn "A * B"
+      printFloatMatrix $ a * b
+    simpleMatMult _ = undefined
+
+    simpleMatAdd [a,b] = do
+      putStrLn "A"
+      printFloatMatrix a
+      putStrLn "B"
+      printFloatMatrix b
+      putStrLn "A + B"
+      printFloatMatrix $ a + b
+    simpleMatAdd _ = undefined
+
+    simpleMatTranspose [a] = do
+      putStrLn "A"
+      printFloatMatrix a
+      putStrLn "A^T"
+      printFloatMatrix $ floatMatrixTranspose a
+    simpleMatTranspose _ = undefined
+
+    simpleMatScale [a] = do
+      putStrLn "A"
+      printFloatMatrix a
+      putStrLn "3.0 * 2.0 * A"
+      printFloatMatrix $ floatMatrixScale 3.0 $ floatMatrixScale 2.0 a
+    simpleMatScale _ = undefined
+
+    rewrittenMatAdd [a,b,c,d,e,f,g,h,i,j] = do
+      computeSync $ a + b + c + d + e + f + g + h + i + j
+    rewrittenMatAdd _ = undefined
+
+    simpleStrsm [am,b] = do
+      putStrLn "A"
+      a <- return $ LowerTriangularMatrix am False
+      printTriangularFloatMatrix a
+      putStrLn "B"
+      printFloatMatrix b
+      putStrLn "Solve A.X = B"
+      printFloatMatrix $ solveAXB a b
+    simpleStrsm _ = undefined
+
+    simpleStrmm [am,b] = do
+      putStrLn "A"
+      a <- return $ LowerTriangularMatrix am False
+      printTriangularFloatMatrix a
+      putStrLn "B"
+      printFloatMatrix b
+      putStrLn "A.B"
+      printFloatMatrix $ strmm 0 a b
+    simpleStrmm _ = undefined
+
+    choleskySample [a] = do
+      putStrLn "A"
+      printFloatMatrix a
+      putStrLn "Cholesky A"
+      printFloatMatrix $ floatMatrixPotrf a
+    choleskySample _ = undefined
+
+    choleskyBench bsize [a] = do
+     computeSync (cholesky bsize a)
+    choleskyBench _ _ = undefined
+
+    choleskyBenchTiled [a] = do
+     computeSync (choleskyTiled a)
+    choleskyBenchTiled _ = undefined
+
+
+toFloat :: Real a => a -> Float
 toFloat n = realToFrac n :: Float
 
 askNumber :: String -> IO Word
@@ -92,12 +176,7 @@ askNumber s = do
   n <- getLine
   return (read n)
 
-identityMatrix n = floatMatrixInit (\x y -> if (x == y) then 1.0 else 0.0) n n
-customMatrix n m = floatMatrixInit (\x y -> fromIntegral (10 + x*2 + y)) n m
-hilbertMatrix n = floatMatrixInit (\x y -> 1.0 / ((fromIntegral x) + (fromIntegral y) + 1.0)) n n
-stableHilbertMatrix n = hilbertMatrix n + (floatMatrixScale (fromIntegral n) (identityMatrix n))
-matrixList n m = map (floatMatrixSet n m . fromIntegral) [1..30]
-
+sample :: Computable a => [a] -> ([a] -> IO ()) -> IO (NominalDiffTime, NominalDiffTime, NominalDiffTime)
 sample ds f = do
   putStrLn "Initializing runtime system..."
   t0 <- getCurrentTime
@@ -106,8 +185,8 @@ sample ds f = do
   showRuntimeInfo
   putStrLn "Initializing data..."
   t1 <- getCurrentTime
-  mapM compute ds
-  mapM wait ds
+  _ <- mapM compute ds
+  _ <- mapM wait ds
   putStrLn "Computing..."
   t2 <- getCurrentTime
   f ds
@@ -116,74 +195,5 @@ sample ds f = do
   return (diffUTCTime t1 t0, diffUTCTime t2 t1, diffUTCTime t3 t2)
 
 
-reduction ms = computeSync $ reduce (*) (HighVector ms)
 
-splitMatMult va ha vb hb [a,b] = do
-  computeHighMatrixSync $ highSGEMM (split va ha a) (split vb hb b)
-
-simpleMatMult [a,b] = do
-  putStrLn "A"
-  printFloatMatrix a
-  putStrLn "B"
-  printFloatMatrix b
-  putStrLn "A * B"
-  printFloatMatrix $ a * b
-
-simpleMatAdd [a,b] = do
-  putStrLn "A"
-  printFloatMatrix a
-  putStrLn "B"
-  printFloatMatrix b
-  putStrLn "A + B"
-  printFloatMatrix $ a + b
-
-simpleMatTranspose [a] = do
-  putStrLn "A"
-  printFloatMatrix a
-  putStrLn "A^T"
-  printFloatMatrix $ floatMatrixTranspose a
-
-simpleMatScale [a] = do
-  putStrLn "A"
-  printFloatMatrix a
-  putStrLn "3.0 * 2.0 * A"
-  printFloatMatrix $ floatMatrixScale 3.0 $ floatMatrixScale 2.0 a
-
-rewrittenMatAdd [a,b,c,d,e,f,g,h,i,j] = do
-  computeSync $ a + b + c + d + e + f + g + h + i + j
-
-simpleStrsm [am,b] = do
-  putStrLn "A"
-  a <- return $ LowerTriangularMatrix am False
-  printTriangularFloatMatrix a
-  putStrLn "B"
-  printFloatMatrix b
-  putStrLn "Solve A.X = B"
-  printFloatMatrix $ solveAXB a b
-
-simpleStrmm [am,b] = do
-  putStrLn "A"
-  a <- return $ LowerTriangularMatrix am False
-  printTriangularFloatMatrix a
-  putStrLn "B"
-  printFloatMatrix b
-  putStrLn "A.B"
-  printFloatMatrix $ strmm 0 a b
-
-choleskySample [a] = do
-  putStrLn "A"
-  printFloatMatrix a
-  putStrLn "Cholesky A"
-  printFloatMatrix $ floatMatrixPotrf a
-
-choleskyBench bsize [a] = do
- computeSync (cholesky bsize a)
-
-choleskyBenchTiled [a] = do
- computeSync (choleskyTiled a)
-
-highSGEMM :: HighMatrix (Matrix Float) -> HighMatrix (Matrix Float) -> HighMatrix (Matrix Float)
-highSGEMM m1 m2 = crossWith dot (rows m1) (columns m2)
-  where
-    dot v1 v2 = reduce (+) $ HaskellPU.HighDataTypes.zipWith (*) v1 v2
 

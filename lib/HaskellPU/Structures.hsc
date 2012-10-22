@@ -2,11 +2,7 @@
  
 module HaskellPU.Structures where
  
-import HaskellPU.Event
-
 import Foreign
-import Foreign.Ptr
-import Foreign.C.String
 import Foreign.C.Types
  
 #include <starpu.h>
@@ -32,8 +28,8 @@ instance Storable HaskellPUConf where
             nopencl = opencl,
             nspus = spus
         }
-    poke ptr (HaskellPUConf ncpus ncuda nopencl nspus) = do
-        (#poke struct starpu_conf, ncpus) ptr ncpus
-        (#poke struct starpu_conf, ncuda) ptr ncuda
-        (#poke struct starpu_conf, nopencl) ptr nopencl
-        (#poke struct starpu_conf, nspus) ptr nspus
+    poke ptr (HaskellPUConf ncpusV ncudaV nopenclV nspusV) = do
+        (#poke struct starpu_conf, ncpus) ptr ncpusV
+        (#poke struct starpu_conf, ncuda) ptr ncudaV
+        (#poke struct starpu_conf, nopencl) ptr nopenclV
+        (#poke struct starpu_conf, nspus) ptr nspusV

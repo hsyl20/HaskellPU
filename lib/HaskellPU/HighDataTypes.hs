@@ -4,10 +4,7 @@ module HaskellPU.HighDataTypes where
 
 import Prelude hiding (foldr)
 import qualified Data.List
-import Data.Traversable
 import Data.Word
-import Data.Ix
-import Control.Applicative
 import Data.Foldable
 import HaskellPU.Data
 import HaskellPU.Data.FloatMatrix
@@ -60,13 +57,13 @@ cross :: Crossable m n => m a  -> m b -> n (a,b)
 cross a b = crossWith (,) a b
 
 reduce :: (a -> a -> a) -> HighVector a -> a
-reduce f (HighVector [])  = undefined
-reduce f (HighVector [a]) = a
+reduce _ (HighVector [])  = undefined
+reduce _ (HighVector [a]) = a
 reduce f (HighVector xs) = xs `seq` reduce f (HighVector (inner xs))
   where
     inner [] = []
     inner [a] = [a]
-    inner (a:b:xs) = [f a b] ++ inner xs
+    inner (a:b:rs) = [f a b] ++ inner rs
 
 -- |Extract a row of a matrix
 row :: Int -> HighMatrix a -> HighVector a
@@ -134,12 +131,9 @@ printHighMatrix m = do
   traverseHighMatrix printFloatMatrix m
 
 split :: Word -> Word -> Matrix Float -> HighMatrix (Matrix Float)
-split x y m = HighMatrix $ map (\r -> map (\c -> f c r) cols) rows
+split x y m = HighMatrix $ map (\r -> map (\c -> f c r) [0..x-1]) [0..y-1]
   where
-    rows = [0..y-1]
-    cols = [0..x-1]
-    w = width m
-    h = height m
+    (w,h) = (width m, height m)
     wp = div w x
     wr = w - (x*wp)
     hp = div h y
@@ -165,6 +159,25 @@ traverseHighMatrix g m = f 0 0
 
 showHighMatrix :: HighMatrix (Matrix Float) -> IO ()
 showHighMatrix = traverseHighMatrix waitAndShow
+
+highMatrixMul :: Num a => HighMatrix a -> HighMatrix a -> HighMatrix a
+highMatrixMul m1 m2 = crossWith dot (rows m1) (columns m2)
+  where
+    dot v1 v2 = reduce (+) $ HaskellPU.HighDataTypes.zipWith (*) v1 v2
+
+highMatrixAdd :: Num a => HighMatrix a -> HighMatrix a -> HighMatrix a
+highMatrixAdd = HaskellPU.HighDataTypes.zipWith (+)
+
+highMatrixSub :: Num a => HighMatrix a -> HighMatrix a -> HighMatrix a
+highMatrixSub = HaskellPU.HighDataTypes.zipWith (-)
+
+instance Num a => Num (HighMatrix a) where
+  (*) = highMatrixMul
+  (+) = highMatrixAdd
+  (-) = highMatrixSub
+  abs = undefined
+  signum = undefined
+  fromInteger = undefined
 
 {-------------------
  - Rewrite Rules

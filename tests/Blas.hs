@@ -1,3 +1,5 @@
+{-# LANGUAGE DoAndIfThenElse, FlexibleInstances #-}
+
 import Test.QuickCheck
 
 import HaskellPU.Data.FloatMatrix

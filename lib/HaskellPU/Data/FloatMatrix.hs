@@ -2,7 +2,6 @@
 
 module HaskellPU.Data.FloatMatrix where
 
-import Data.Ix
 import Data.Word
 import qualified Data.List
 
@@ -10,16 +9,12 @@ import Foreign.Marshal.Alloc
 import Foreign.Marshal.Array
 import Foreign.Ptr
 import Foreign.ForeignPtr
-import Foreign.C
 import Foreign.Storable
 import System.IO.Unsafe
-import System.Mem.Weak
 
 import HaskellPU.Data
 import HaskellPU.Data.Matrix
 import HaskellPU.Task
-import HaskellPU.Structures
-import HaskellPU.Platform
 import HaskellPU.AccessMode
 import HaskellPU.Event
 
@@ -71,7 +66,7 @@ floatMatrixDuplicate m = do
   evt <- withForeignPtr (handle m) $ \hdlM -> withForeignPtr hdl $ \h -> do
     task <- dataDuplicate hdlM h
     taskDependsOn task (event m)
-    taskSubmit task
+    _ <- taskSubmit task
     return $ taskEvent task
   return $ Matrix hdl evt (width m) (height m) (ld m) (elemSize m)
 
@@ -104,7 +99,7 @@ floatMatrixInplaceTask f deps m = unsafePerformIO $ do
   dupMat <- floatMatrixDuplicate m
   task <- withForeignPtr (handle dupMat) $ \hdl -> do
     task <- f hdl
-    mapM (taskDependsOn task) deps
+    _ <- mapM (taskDependsOn task) deps
     taskSubmit task
     return task
   return $ Matrix (handle dupMat) (taskEvent task) (width dupMat) (height dupMat) (ld dupMat) 4
@@ -114,11 +109,12 @@ floatMatrixComputeTask w h ld f deps = unsafePerformIO $ do
   handle <- floatMatrixRegisterInvalid w h
   task <- withForeignPtr handle $ \hdl -> do
     task <- f hdl
-    mapM (taskDependsOn task) deps
+    _ <- mapM (taskDependsOn task) deps
     taskSubmit task
     return task
   return $ Matrix handle (taskEvent task) w h ld 4
 
+waitAndShow :: (Show a, Data a) => a -> IO ()
 waitAndShow m = do
   eventWait (event m)
   putStrLn (show m)
@@ -158,13 +154,7 @@ floatMatrixInvalid width height = floatMatrixMayInit Nothing width height
 
 floatMatrixRegisterInvalid :: Word -> Word -> IO Handle
 floatMatrixRegisterInvalid width height = do
---  ptr <- starpuMalloc rawSize
   floatMatrixRegister nullPtr (-1) width height height
-  where
-    rawSize = fromIntegral (width*height*4)
-
-
-
 
 withAcquiredData :: Data a => a -> (WordPtr -> IO b) -> IO b
 withAcquiredData m f = do

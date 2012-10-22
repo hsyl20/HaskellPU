@@ -1,4 +1,4 @@
-module HaskellPU.Cholesky where
+module HaskellPU.Algorithms.Cholesky where
 
 import Prelude hiding (head,tail,zipWith)
 import Data.Word
@@ -19,7 +19,7 @@ choleskyTiled ms = if hheight ms == 0 then ms else fromTriangularSplit l11 l12 l
     l11 = floatMatrixPotrf m11
     l12 = fmap (strsm 0 (LowerTriangularMatrix l11 False)) m12
     l22 = choleskyTiled $ zipWith (-) m22 (crossWith (*) l12 l12)
-    (m11,m12,m21,m22) = triangularSplit ms
+    (m11,m12,_,m22) = triangularSplit ms
     
 triangularSplit :: HighMatrix a -> (a, HighVector a, HighVector a, HighMatrix a)
 triangularSplit m = (m11,mk1,m1k,mkk)

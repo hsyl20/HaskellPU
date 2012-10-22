@@ -1,15 +1,14 @@
-module HaskellPU.QR where
+module HaskellPU.Algorithms.QR where
 
 import qualified Prelude
 import Prelude (($), (-), (==), Int, Float, undefined)
 import Data.Word
 import HaskellPU.HighDataTypes
 import HaskellPU.Data.Matrix
-import HaskellPU.Data.FloatMatrix
 import Data.Functor
 
 unsplit :: Word -> Word -> HighMatrix (Matrix Float) -> Matrix Float
-unsplit i j a = undefined
+unsplit _ _ _ = undefined
 
 qr_lu f11 f1k fk1 fkk i a = unsplit i i bs
   where

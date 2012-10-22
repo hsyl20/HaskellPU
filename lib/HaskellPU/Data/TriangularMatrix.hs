@@ -2,7 +2,8 @@
 
 module HaskellPU.Data.TriangularMatrix where
 
-import HaskellPU.Solver
+import HaskellPU.Algorithms.Solver
+
 import HaskellPU.Task
 import HaskellPU.Data
 import HaskellPU.Data.FloatMatrix
@@ -42,7 +43,7 @@ ssyrk trans a = floatMatrixUnaryOp f m w h
   where
     w = if trans then height m else width m
     h = if trans then width m else height m
-    (uplo, unit, m) = case a of
+    (uplo, _, m) = case a of
       LowerTriangularMatrix m unit -> (False,unit,m)
       UpperTriangularMatrix m unit -> (True,unit,m)
     f = floatMatrixSsyrkTaskCreate uplo trans
@@ -51,7 +52,7 @@ zipWithIndex :: [a] -> [(a,Int)]
 zipWithIndex l = inner l 0
   where
     inner (x:xs) i = (x,i):(inner xs (i+1))
-    inner [] i = []
+    inner [] _ = []
 
 printTriangularFloatMatrix :: TriangularMatrix Float -> IO ()
 printTriangularFloatMatrix (LowerTriangularMatrix m _) = do

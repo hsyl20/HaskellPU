@@ -2,9 +2,7 @@
 
 module HaskellPU.Event where
 
-import Foreign.C
 import Foreign.Ptr
-import System.IO.Unsafe
 
 type Event = Ptr ()
 

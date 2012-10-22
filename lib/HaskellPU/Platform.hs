@@ -2,13 +2,9 @@
 
 module HaskellPU.Platform where
 
-import HaskellPU.Data
 import HaskellPU.Structures
-import HaskellPU.Task
-import HaskellPU.Event
 import Foreign.Ptr
 import Foreign.C
-import Control.DeepSeq
 import System.IO.Unsafe
 import System.Mem
 
@@ -35,20 +31,25 @@ foreign import ccall unsafe "starpu_sched_policy_description" starpuSchedPolicyD
 {- Platform API -}
 
 {- |Indicate if asynchronous copies are enabled -}
+asynchronousCopyEnabled :: Bool
 asynchronousCopyEnabled = (asynchronousCopyDisabled == 0)
 
 {- |Indicate if HaskellPU's data flow mode is enabled -}
+dataflowModeEnabled :: Bool
 dataflowModeEnabled = (dataflowModeGet /= 0)
 
 {- |Indicate if prefetching is enabled -}
+prefetchEnabled :: Bool
 prefetchEnabled = (prefetchState /= 0)
 
 {- |Name of the active scheduling policy -}
+schedPolicyName :: String
 schedPolicyName = unsafePerformIO $ do
   s <- peekCString $ starpuSchedPolicyName
   return s
 
 {- |Description of the active scheduling policy -}
+schedPolicyDescription :: String
 schedPolicyDescription = unsafePerformIO $ do
   s <- peekCString $ starpuSchedPolicyDescription
   return s
@@ -59,14 +60,17 @@ shutdown = do
    starpuShutdown
 
 {- |Initialize HaskellPU to be used from Haskell -}
+defaultInit :: IO ()
 defaultInit = do
-  initialize nullPtr
+  _ <- initialize nullPtr
   dataflowModeSet 0
 
 {- |Display platform info -}
+showRuntimeInfo :: IO ()
 showRuntimeInfo = putStrLn runtimeInfo
 
 {- |Return platform info -}
+runtimeInfo :: String
 runtimeInfo = foldl1 (\x y -> x ++ "\n" ++ y) infos
   where
     infos = [workers,combinedWorkers,cpuWorkers,cudaWorkers,openclWorkers,spuWorkers,async,dataflow,sched,prefetch]

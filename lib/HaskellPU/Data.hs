@@ -3,19 +3,9 @@
 module HaskellPU.Data where
 
 import Foreign.Ptr
-import Data.List
-import Data.Word
-import Data.Ix
-import Control.Monad
-import Foreign.Ptr
 import Foreign.ForeignPtr
 import Foreign.C
-import Foreign.Storable
-import Foreign.Marshal.Alloc
-import Foreign.Marshal.Array
-import System.IO.Unsafe
 
-import HaskellPU.Structures
 import HaskellPU.Event
 import HaskellPU.Task
 import HaskellPU.AccessMode

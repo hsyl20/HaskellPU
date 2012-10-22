@@ -47,14 +47,15 @@ library
 
   exposed-modules:     
     HaskellPU.AccessMode, 
-    HaskellPU.Cholesky, 
     HaskellPU.Event, 
     HaskellPU.HighDataTypes, 
     HaskellPU.Platform, 
-    HaskellPU.QR, 
-    HaskellPU.Solver, 
     HaskellPU.Structures, 
     HaskellPU.Task, 
+
+    HaskellPU.Algorithms.Cholesky, 
+    HaskellPU.Algorithms.QR, 
+    HaskellPU.Algorithms.Solver, 
 
     HaskellPU.Data, 
     HaskellPU.Data.Matrix, 
@@ -69,6 +70,8 @@ library
   build-tools:
     hsc2hs
 
+  ghc-options: -Wall
+
   hs-source-dirs: lib
 
 
@@ -82,3 +85,19 @@ executable Test
     HaskellPU
 
   hs-source-dirs: apps
+
+  ghc-options: -Wall
+
+
+Test-Suite test-blas
+  type: exitcode-stdio-1.0
+  
+  main-is: Blas.hs
+
+  hs-source-dirs: tests
+  
+  build-depends: 
+    base, 
+    Cabal >= 1.9.2,
+    QuickCheck,
+    HaskellPU
