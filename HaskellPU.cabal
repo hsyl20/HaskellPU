@@ -16,10 +16,12 @@ build-type:          Custom
 cabal-version:       >=1.8
 
 library
-  pkgconfig-depends:   starpu-1.0
+  pkgconfig-depends:
+    starpu-1.0
 
   extra-libraries:
     blas
+    lapack
 
   c-sources:           
     lib/HaskellPU/Data_c.c
@@ -64,10 +66,14 @@ library
     mtl ==2.1.*, 
     deepseq ==1.3.*
 
-  build-tools: hsc2hs
-  hs-source-dirs:  lib
+  build-tools:
+    hsc2hs
+
+  hs-source-dirs: lib
+
 
 executable Test
+
   main-is: Test.hs
 
   build-depends: 
@@ -75,8 +81,4 @@ executable Test
     time ==1.4.*,
     HaskellPU
 
-  extra-libraries:
-    blas,
-    lapack
-
-  hs-source-dirs:  apps
+  hs-source-dirs: apps

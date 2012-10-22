@@ -1,9 +1,11 @@
 HaskellPU
 =========
 
+HaskellPU is a functional wrapper above StarPU (http://runtime.bordeaux.inria.fr/StarPU/).
+
 * Dependencies
   * StarPU
-  * CuBlas
+  * CUDA/CuBlas
   * BLAS
   * Lapack
   * ghc

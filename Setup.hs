@@ -22,7 +22,6 @@ main = defaultMainWithHooks simpleUserHooks {
      }
 
 myBuildHook pkg_descr local_bld_info user_hooks bld_flags = do
-  -- Extract custom fields customFieldsPD where field name x-cpp-dll-sources
   let lib       = fromJust (library pkg_descr)
       lib_bi    = libBuildInfo lib
       custom_bi = customFieldsBI lib_bi
